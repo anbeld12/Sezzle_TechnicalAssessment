@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within, act } from '@testing-library/react';
 import { Calculator } from './Calculator';
 import * as apiService from '../services/api';
 
@@ -366,5 +366,144 @@ describe('Calculator Component Integration', () => {
     // Tactile depressed state applies border-b-0 and translate-y-[3px]
     expect(btn7.className).toContain('border-b-0');
     expect(btn7.className).toContain('translate-y-[3px]');
+  });
+
+  describe('Keyboard modifier guards & clipboard copy', () => {
+    let writeText: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      writeText = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: { writeText },
+      });
+      window.getSelection()?.removeAllRanges();
+    });
+
+    const enter42 = () => {
+      fireEvent.keyDown(window, { key: '4' });
+      fireEvent.keyDown(window, { key: '2' });
+      expect(screen.getByTestId('display-value')).toHaveTextContent('42');
+    };
+
+    it('Ctrl+C copies the display value, shows feedback and does NOT clear', async () => {
+      render(<Calculator />);
+      enter42();
+
+      fireEvent.keyDown(window, { key: 'c', ctrlKey: true });
+
+      expect(writeText).toHaveBeenCalledWith('42');
+      expect(await screen.findByText(/Copied to clipboard/)).toBeInTheDocument();
+      expect(screen.getByTestId('display-value')).toHaveTextContent('42');
+    });
+
+    it('Cmd+C (metaKey) also copies without clearing', async () => {
+      render(<Calculator />);
+      enter42();
+
+      fireEvent.keyDown(window, { key: 'C', metaKey: true });
+
+      expect(writeText).toHaveBeenCalledWith('42');
+      expect(await screen.findByTestId('copy-feedback')).toBeInTheDocument();
+      expect(screen.getByTestId('display-value')).toHaveTextContent('42');
+    });
+
+    it('copy button copies the display value and shows confirmation', async () => {
+      render(<Calculator />);
+      enter42();
+
+      fireEvent.click(screen.getByTestId('btn-copy'));
+
+      expect(writeText).toHaveBeenCalledWith('42');
+      expect(await screen.findByText(/Copied to clipboard/)).toBeInTheDocument();
+      expect(screen.getByTestId('display-value')).toHaveTextContent('42');
+    });
+
+    it('copy feedback fades out after 2 seconds', async () => {
+      vi.useFakeTimers();
+      try {
+        render(<Calculator />);
+        enter42();
+
+        await act(async () => {
+          fireEvent.click(screen.getByTestId('btn-copy'));
+        });
+        expect(screen.getByTestId('copy-feedback')).toBeInTheDocument();
+
+        act(() => {
+          vi.advanceTimersByTime(2000);
+        });
+        expect(screen.queryByTestId('copy-feedback')).not.toBeInTheDocument();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('Ctrl+R does NOT trigger sqrt (browser reload shortcut passes through)', () => {
+      const mockCalculate = vi.mocked(apiService.calculateOnServer);
+      render(<Calculator />);
+      enter42();
+
+      fireEvent.keyDown(window, { key: 'r', ctrlKey: true });
+      fireEvent.keyDown(window, { key: 'R', metaKey: true });
+
+      expect(mockCalculate).not.toHaveBeenCalled();
+      expect(screen.getByTestId('display-value')).toHaveTextContent('42');
+    });
+
+    it('ignores other modifier combinations (Ctrl+V keydown, Alt+digit, Ctrl+Shift+I)', () => {
+      render(<Calculator />);
+      enter42();
+
+      fireEvent.keyDown(window, { key: 'v', ctrlKey: true });
+      fireEvent.keyDown(window, { key: '7', altKey: true });
+      fireEvent.keyDown(window, { key: 'I', ctrlKey: true, shiftKey: true });
+      fireEvent.keyDown(window, { key: 'Backspace', ctrlKey: true });
+
+      expect(writeText).not.toHaveBeenCalled();
+      expect(screen.getByTestId('display-value')).toHaveTextContent('42');
+    });
+
+    it('plain "c" key still clears the calculator', () => {
+      render(<Calculator />);
+      enter42();
+
+      fireEvent.keyDown(window, { key: 'c' });
+      expect(screen.getByTestId('display-value')).toHaveTextContent('0');
+    });
+
+    it('Enter on a mouse-focused keycap evaluates once and blurs the keycap', async () => {
+      const mockCalculate = vi.mocked(apiService.calculateOnServer);
+      mockCalculate.mockResolvedValueOnce({
+        result: 5,
+        operation: 'add',
+        operand1: 2,
+        operand2: 3,
+        expression: '2 + 3 = 5',
+      });
+      render(<Calculator />);
+
+      fireEvent.click(screen.getByTestId('btn-2'));
+      fireEvent.click(screen.getByTestId('btn-add'));
+      const btn3 = screen.getByTestId('btn-3');
+      fireEvent.click(btn3);
+      btn3.focus();
+      expect(document.activeElement).toBe(btn3);
+
+      const notPrevented = fireEvent.keyDown(btn3, { key: 'Enter' });
+
+      expect(notPrevented).toBe(false); // default (native re-click) prevented
+      expect(document.activeElement).not.toBe(btn3);
+      await waitFor(() => {
+        expect(screen.getByTestId('display-value')).toHaveTextContent('5');
+      });
+      expect(mockCalculate).toHaveBeenCalledTimes(1);
+    });
+
+    it('Space key is prevented so focused keycaps are not re-clicked', () => {
+      render(<Calculator />);
+      const notPrevented = fireEvent.keyDown(window, { key: ' ' });
+      expect(notPrevented).toBe(false);
+    });
   });
 });
