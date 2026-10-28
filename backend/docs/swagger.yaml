@@ -1,0 +1,117 @@
+basePath: /
+definitions:
+  api.CalculateRequest:
+    properties:
+      operand1:
+        example: 10.5
+        type: number
+      operand2:
+        example: 2.5
+        type: number
+      operation:
+        enum:
+        - add
+        - subtract
+        - multiply
+        - divide
+        - power
+        - sqrt
+        - percentage
+        example: add
+        type: string
+    type: object
+  api.CalculateResponse:
+    properties:
+      expression:
+        example: 10.5 + 2.5 = 13
+        type: string
+      operand1:
+        example: 10.5
+        type: number
+      operand2:
+        example: 2.5
+        type: number
+      operation:
+        example: add
+        type: string
+      result:
+        example: 13
+        type: number
+    type: object
+  api.ErrorDetail:
+    properties:
+      code:
+        example: DIVISION_BY_ZERO
+        type: string
+      message:
+        example: division by zero is undefined
+        type: string
+    type: object
+  api.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/api.ErrorDetail'
+    type: object
+  api.HealthResponse:
+    properties:
+      status:
+        example: ok
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Production-grade REST API for basic and advanced arithmetic operations.
+  title: Sezzle Calculator Microservice API
+  version: "1.0"
+paths:
+  /api/v1/calculate:
+    post:
+      consumes:
+      - application/json
+      description: Calculates basic and advanced arithmetic operations with IEEE 754
+        precision normalization.
+      parameters:
+      - description: Calculation payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.CalculateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.CalculateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Perform an arithmetic calculation
+      tags:
+      - calculator
+  /api/v1/health:
+    get:
+      description: Returns ok if the service is alive and healthy.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.HealthResponse'
+      summary: Service health check
+      tags:
+      - system
+schemes:
+- http
+swagger: "2.0"
