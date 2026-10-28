@@ -22,6 +22,7 @@ interface KeypadProps {
   onEvaluate: () => void;
   pendingOperation: BinaryOperation | null;
   isLoading: boolean;
+  pressedKeyId?: string | null;
 }
 
 export const Keypad: React.FC<KeypadProps> = ({
@@ -35,6 +36,7 @@ export const Keypad: React.FC<KeypadProps> = ({
   onEvaluate,
   pendingOperation,
   isLoading,
+  pressedKeyId,
 }) => {
   return (
     <div className="grid grid-cols-4 gap-2.5 sm:gap-3 mt-4">
@@ -43,6 +45,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="advanced-op"
         onClick={() => onUnaryOperation('sqrt')}
         disabled={isLoading}
+        isPressed={pressedKeyId === 'btn-sqrt'}
         ariaLabel="Square root"
         testId="btn-sqrt"
       >
@@ -53,6 +56,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         onClick={() => onBinaryOperation('power')}
         disabled={isLoading}
         isActive={pendingOperation === 'power'}
+        isPressed={pressedKeyId === 'btn-power'}
         ariaLabel="Exponentiate"
         testId="btn-power"
       >
@@ -62,6 +66,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="advanced-op"
         onClick={() => onUnaryOperation('percentage')}
         disabled={isLoading}
+        isPressed={pressedKeyId === 'btn-percentage'}
         ariaLabel="Percentage"
         testId="btn-percentage"
       >
@@ -71,6 +76,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="advanced-op"
         onClick={onToggleSign}
         disabled={isLoading}
+        isPressed={pressedKeyId === 'btn-toggle-sign'}
         ariaLabel="Toggle positive or negative"
         testId="btn-toggle-sign"
       >
@@ -82,6 +88,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="danger"
         onClick={onClear}
         className="col-span-2"
+        isPressed={pressedKeyId === 'btn-ac'}
         ariaLabel="All clear"
         testId="btn-ac"
       >
@@ -90,6 +97,7 @@ export const Keypad: React.FC<KeypadProps> = ({
       <Button
         variant="danger"
         onClick={onDelete}
+        isPressed={pressedKeyId === 'btn-del'}
         ariaLabel="Delete last digit"
         testId="btn-del"
       >
@@ -100,6 +108,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         onClick={() => onBinaryOperation('divide')}
         disabled={isLoading}
         isActive={pendingOperation === 'divide'}
+        isPressed={pressedKeyId === 'btn-divide'}
         ariaLabel="Divide"
         testId="btn-divide"
       >
@@ -107,13 +116,31 @@ export const Keypad: React.FC<KeypadProps> = ({
       </Button>
 
       {/* Row 3: 7, 8, 9, Multiply */}
-      <Button variant="number" onClick={() => onDigit('7')} ariaLabel="Digit 7" testId="btn-7">
+      <Button
+        variant="number"
+        onClick={() => onDigit('7')}
+        isPressed={pressedKeyId === 'btn-7'}
+        ariaLabel="Digit 7"
+        testId="btn-7"
+      >
         7
       </Button>
-      <Button variant="number" onClick={() => onDigit('8')} ariaLabel="Digit 8" testId="btn-8">
+      <Button
+        variant="number"
+        onClick={() => onDigit('8')}
+        isPressed={pressedKeyId === 'btn-8'}
+        ariaLabel="Digit 8"
+        testId="btn-8"
+      >
         8
       </Button>
-      <Button variant="number" onClick={() => onDigit('9')} ariaLabel="Digit 9" testId="btn-9">
+      <Button
+        variant="number"
+        onClick={() => onDigit('9')}
+        isPressed={pressedKeyId === 'btn-9'}
+        ariaLabel="Digit 9"
+        testId="btn-9"
+      >
         9
       </Button>
       <Button
@@ -121,6 +148,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         onClick={() => onBinaryOperation('multiply')}
         disabled={isLoading}
         isActive={pendingOperation === 'multiply'}
+        isPressed={pressedKeyId === 'btn-multiply'}
         ariaLabel="Multiply"
         testId="btn-multiply"
       >
@@ -128,13 +156,31 @@ export const Keypad: React.FC<KeypadProps> = ({
       </Button>
 
       {/* Row 4: 4, 5, 6, Subtract */}
-      <Button variant="number" onClick={() => onDigit('4')} ariaLabel="Digit 4" testId="btn-4">
+      <Button
+        variant="number"
+        onClick={() => onDigit('4')}
+        isPressed={pressedKeyId === 'btn-4'}
+        ariaLabel="Digit 4"
+        testId="btn-4"
+      >
         4
       </Button>
-      <Button variant="number" onClick={() => onDigit('5')} ariaLabel="Digit 5" testId="btn-5">
+      <Button
+        variant="number"
+        onClick={() => onDigit('5')}
+        isPressed={pressedKeyId === 'btn-5'}
+        ariaLabel="Digit 5"
+        testId="btn-5"
+      >
         5
       </Button>
-      <Button variant="number" onClick={() => onDigit('6')} ariaLabel="Digit 6" testId="btn-6">
+      <Button
+        variant="number"
+        onClick={() => onDigit('6')}
+        isPressed={pressedKeyId === 'btn-6'}
+        ariaLabel="Digit 6"
+        testId="btn-6"
+      >
         6
       </Button>
       <Button
@@ -142,6 +188,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         onClick={() => onBinaryOperation('subtract')}
         disabled={isLoading}
         isActive={pendingOperation === 'subtract'}
+        isPressed={pressedKeyId === 'btn-subtract'}
         ariaLabel="Subtract"
         testId="btn-subtract"
       >
@@ -149,13 +196,31 @@ export const Keypad: React.FC<KeypadProps> = ({
       </Button>
 
       {/* Row 5: 1, 2, 3, Add */}
-      <Button variant="number" onClick={() => onDigit('1')} ariaLabel="Digit 1" testId="btn-1">
+      <Button
+        variant="number"
+        onClick={() => onDigit('1')}
+        isPressed={pressedKeyId === 'btn-1'}
+        ariaLabel="Digit 1"
+        testId="btn-1"
+      >
         1
       </Button>
-      <Button variant="number" onClick={() => onDigit('2')} ariaLabel="Digit 2" testId="btn-2">
+      <Button
+        variant="number"
+        onClick={() => onDigit('2')}
+        isPressed={pressedKeyId === 'btn-2'}
+        ariaLabel="Digit 2"
+        testId="btn-2"
+      >
         2
       </Button>
-      <Button variant="number" onClick={() => onDigit('3')} ariaLabel="Digit 3" testId="btn-3">
+      <Button
+        variant="number"
+        onClick={() => onDigit('3')}
+        isPressed={pressedKeyId === 'btn-3'}
+        ariaLabel="Digit 3"
+        testId="btn-3"
+      >
         3
       </Button>
       <Button
@@ -163,6 +228,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         onClick={() => onBinaryOperation('add')}
         disabled={isLoading}
         isActive={pendingOperation === 'add'}
+        isPressed={pressedKeyId === 'btn-add'}
         ariaLabel="Add"
         testId="btn-add"
       >
@@ -174,6 +240,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="number"
         onClick={() => onDigit('0')}
         className="col-span-2"
+        isPressed={pressedKeyId === 'btn-0'}
         ariaLabel="Digit 0"
         testId="btn-0"
       >
@@ -182,6 +249,7 @@ export const Keypad: React.FC<KeypadProps> = ({
       <Button
         variant="number"
         onClick={onDecimal}
+        isPressed={pressedKeyId === 'btn-decimal'}
         ariaLabel="Decimal point"
         testId="btn-decimal"
       >
@@ -191,6 +259,7 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="equals"
         onClick={onEvaluate}
         disabled={isLoading}
+        isPressed={pressedKeyId === 'btn-equals'}
         ariaLabel="Calculate result"
         testId="btn-equals"
       >

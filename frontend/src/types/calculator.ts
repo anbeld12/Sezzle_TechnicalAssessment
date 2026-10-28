@@ -42,6 +42,11 @@ export interface HistoryEntry {
   timestamp: string;
 }
 
+export interface FriendlyError {
+  title: string;
+  message: string;
+}
+
 export interface CalculatorState {
   displayValue: string;
   expressionTrail: string;
@@ -49,7 +54,7 @@ export interface CalculatorState {
   pendingOperation: BinaryOperation | null;
   waitingForSecondOperand: boolean;
   isLoading: boolean;
-  error: string | null;
+  error: FriendlyError | null;
   history: HistoryEntry[];
 }
 

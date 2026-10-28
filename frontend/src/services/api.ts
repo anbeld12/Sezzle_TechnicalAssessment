@@ -1,14 +1,66 @@
-import type { CalculateRequest, CalculateResponse, ApiErrorPayload } from '../types/calculator';
+import type {
+  CalculateRequest,
+  CalculateResponse,
+  ApiErrorPayload,
+  FriendlyError,
+} from '../types/calculator';
+
+export const HUMANIZED_ERRORS: Record<string, FriendlyError> = {
+  DIVISION_BY_ZERO: {
+    title: "Can't divide by zero",
+    message: 'Try dividing by any other number.',
+  },
+  NUMERIC_OVERFLOW: {
+    title: 'Number is way too big!',
+    message: 'This result exceeds the display capacity.',
+  },
+  NEGATIVE_SQUARE_ROOT: {
+    title: 'Invalid square root',
+    message: 'Square roots only work with zero or positive numbers.',
+  },
+  DOMAIN_ERROR: {
+    title: 'Math error',
+    message: "That combination of numbers doesn't have a real answer.",
+  },
+  MISSING_OPERAND: {
+    title: 'Incomplete calculation',
+    message: 'Please enter a valid number and operation.',
+  },
+  INVALID_OPERATION: {
+    title: 'Incomplete calculation',
+    message: 'Please enter a valid number and operation.',
+  },
+  INVALID_JSON: {
+    title: 'Incomplete calculation',
+    message: 'Please enter a valid number and operation.',
+  },
+  NETWORK_ERROR: {
+    title: 'Calculator server offline',
+    message: 'Please check that the backend service is running.',
+  },
+};
+
+export function getFriendlyError(code: string, fallbackMessage?: string): FriendlyError {
+  if (HUMANIZED_ERRORS[code]) {
+    return HUMANIZED_ERRORS[code];
+  }
+  return {
+    title: 'Incomplete calculation',
+    message: fallbackMessage || 'Please enter a valid number and operation.',
+  };
+}
 
 export class CalculatorApiError extends Error {
   readonly code: string;
   readonly status: number;
+  readonly friendly: FriendlyError;
 
   constructor(message: string, code = 'UNKNOWN_ERROR', status = 500) {
     super(message);
     this.name = 'CalculatorApiError';
     this.code = code;
     this.status = status;
+    this.friendly = getFriendlyError(code, message);
   }
 }
 
@@ -34,7 +86,7 @@ export async function calculateOnServer(
       throw err;
     }
     throw new CalculatorApiError(
-      'Unable to reach calculation service. Please check your connection.',
+      'Calculator server offline',
       'NETWORK_ERROR',
       0
     );

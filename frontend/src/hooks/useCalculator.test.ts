@@ -2,20 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useCalculator } from './useCalculator';
 import * as apiService from '../services/api';
+import type { CalculateResponse } from '../types/calculator';
 
-vi.mock('../services/api', () => ({
-  calculateOnServer: vi.fn(),
-  CalculatorApiError: class extends Error {
-    readonly code: string;
-    readonly status: number;
-    constructor(message: string, code = 'ERROR', status = 400) {
-      super(message);
-      this.name = 'CalculatorApiError';
-      this.code = code;
-      this.status = status;
-    }
-  },
-}));
+vi.mock('../services/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/api')>();
+  return {
+    ...actual,
+    calculateOnServer: vi.fn(),
+  };
+});
 
 describe('useCalculator Hook', () => {
   beforeEach(() => {
@@ -256,7 +251,13 @@ describe('useCalculator Hook', () => {
       await result.current.evaluate();
     });
 
-    expect(result.current.state.error).toBe('division by zero is undefined');
+    expect(result.current.state.error).toEqual({
+      title: "Can't divide by zero",
+      message: 'Try dividing by any other number.',
+    });
+    // Stuck operator state is cleared on error
+    expect(result.current.state.pendingOperation).toBeNull();
+    expect(result.current.state.waitingForSecondOperand).toBe(true);
 
     // Entering a new digit should auto-clear the error
     act(() => {
@@ -412,7 +413,12 @@ describe('useCalculator Hook', () => {
       await result.current.selectBinaryOperation('multiply');
     });
 
-    expect(result.current.state.error).toBe('Calculation failed');
+    expect(result.current.state.error).toEqual({
+      title: 'Incomplete calculation',
+      message: 'Network drop',
+    });
+    expect(result.current.state.pendingOperation).toBeNull();
+    expect(result.current.state.waitingForSecondOperand).toBe(true);
 
     // Unary failure
     mockCalculate.mockRejectedValueOnce(
@@ -429,6 +435,164 @@ describe('useCalculator Hook', () => {
       await result.current.executeUnaryOperation('sqrt');
     });
 
-    expect(result.current.state.error).toBe('square root of a negative number is undefined in real numbers');
+    expect(result.current.state.error).toEqual({
+      title: 'Invalid square root',
+      message: 'Square roots only work with zero or positive numbers.',
+    });
+    expect(result.current.state.pendingOperation).toBeNull();
+    expect(result.current.state.waitingForSecondOperand).toBe(true);
+  });
+
+  describe('Edge-Case Hardening & Stress Testing', () => {
+    it('resets display to 0 on backspace when waitingForSecondOperand or display has scientific notation', async () => {
+      const mockCalculate = vi.mocked(apiService.calculateOnServer);
+      mockCalculate.mockResolvedValueOnce({
+        result: 1.4134e73,
+        operation: 'power',
+        operand1: 10,
+        operand2: 73,
+        expression: '10 ^ 73 = 1.4134e+73',
+      });
+
+      const { result } = renderHook(() => useCalculator());
+
+      act(() => {
+        result.current.inputDigit('1');
+        result.current.inputDigit('0');
+      });
+      act(() => {
+        void result.current.selectBinaryOperation('power');
+      });
+      act(() => {
+        result.current.inputDigit('7');
+        result.current.inputDigit('3');
+      });
+
+      await act(async () => {
+        await result.current.evaluate();
+      });
+
+      expect(result.current.state.waitingForSecondOperand).toBe(true);
+      expect(result.current.state.displayValue).toContain('e');
+
+      // Post-result Backspace must reset cleanly to '0' instead of slicing off exponent digits
+      act(() => {
+        result.current.deleteLast();
+      });
+
+      expect(result.current.state.displayValue).toBe('0');
+      expect(result.current.state.waitingForSecondOperand).toBe(false);
+    });
+
+    it('handles clipboard paste for formatted numbers and ignores non-numbers', () => {
+      const { result } = renderHook(() => useCalculator());
+
+      // 1. Valid formatted number with commas
+      act(() => {
+        const success = result.current.pasteValue('1,250.75');
+        expect(success).toBe(true);
+      });
+      expect(result.current.state.displayValue).toBe('1250.75');
+
+      // 2. Valid negative number with spaces
+      act(() => {
+        const success = result.current.pasteValue(' -42.5 ');
+        expect(success).toBe(true);
+      });
+      expect(result.current.state.displayValue).toBe('-42.5');
+
+      // 3. Invalid non-numeric string gracefully ignored
+      act(() => {
+        const success = result.current.pasteValue('hello-world');
+        expect(success).toBe(false);
+      });
+      expect(result.current.state.displayValue).toBe('-42.5');
+
+      // 4. Exceeds length bounds gracefully ignored
+      act(() => {
+        const success = result.current.pasteValue('1234567890123456789');
+        expect(success).toBe(false);
+      });
+      expect(result.current.state.displayValue).toBe('-42.5');
+    });
+
+    it('prevents rapid concurrent spam while calculation is in-flight', async () => {
+      let resolvePromise: (value: CalculateResponse) => void = () => {};
+      const pendingPromise = new Promise<CalculateResponse>((resolve) => {
+        resolvePromise = resolve;
+      });
+
+      const mockCalculate = vi.mocked(apiService.calculateOnServer);
+      mockCalculate.mockReturnValueOnce(pendingPromise);
+
+      const { result } = renderHook(() => useCalculator());
+
+      act(() => {
+        result.current.inputDigit('5');
+      });
+      act(() => {
+        void result.current.selectBinaryOperation('add');
+      });
+      act(() => {
+        result.current.inputDigit('5');
+      });
+
+      // First evaluation triggers calculateOnServer
+      let firstEvalPromise: Promise<void>;
+      act(() => {
+        firstEvalPromise = result.current.evaluate();
+      });
+
+      // Second rapid evaluation while loading must be ignored
+      act(() => {
+        void result.current.evaluate();
+      });
+
+      expect(mockCalculate).toHaveBeenCalledTimes(1);
+
+      // Resolve the initial promise
+      await act(async () => {
+        resolvePromise({
+          result: 10,
+          operation: 'add',
+          operand1: 5,
+          operand2: 5,
+          expression: '5 + 5 = 10',
+        });
+        await firstEvalPromise!;
+      });
+
+      expect(result.current.state.displayValue).toBe('10');
+      expect(mockCalculate).toHaveBeenCalledTimes(1);
+    });
+
+    it('safely handles lone negative sign and trailing decimal in calculations', async () => {
+      const mockCalculate = vi.mocked(apiService.calculateOnServer);
+      mockCalculate.mockResolvedValueOnce({
+        result: 0,
+        operation: 'add',
+        operand1: 0,
+        operand2: 0,
+        expression: '0 + 0 = 0',
+      });
+
+      const { result } = renderHook(() => useCalculator());
+
+      // Enter "-" then "." -> display is "-0." or "-"
+      act(() => {
+        result.current.toggleSign();
+      });
+      act(() => {
+        result.current.inputDecimal();
+      });
+
+      // User hits operator without typing any numbers: should safely parse as 0 without NaN
+      act(() => {
+        void result.current.selectBinaryOperation('add');
+      });
+
+      expect(result.current.state.firstOperand).toBe(0);
+      expect(result.current.state.error).toBeNull();
+    });
   });
 });

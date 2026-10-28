@@ -1,11 +1,14 @@
 # Full-Stack Calculator Application
 
+[![Author](https://img.shields.io/badge/Author-Acbel-indigo?style=flat)](https://github.com/acbel)
 [![Go Version](https://img.shields.io/badge/Go-1.22%2B-00ADD8?style=flat&logo=go)](https://golang.org)
 [![React Version](https://img.shields.io/badge/React-19.3-61DAFB?style=flat&logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5%2B%20%2F%207-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com)
 [![Docker](https://img.shields.io/badge/Docker-Multi--stage-2496ED?style=flat&logo=docker)](https://www.docker.com)
 [![Swagger OpenAPI](https://img.shields.io/badge/Swagger-OpenAPI_2.0-85EA2D?style=flat&logo=swagger)](http://localhost:8080/swagger/index.html)
+
+**Author:** Acbel • **Model:** CALC-01 Tactical Edition
 
 A production-grade full-stack calculator application developed for the Sezzle Technical Assessment. Built with a high-performance, stateless **Go REST microservice** and an ergonomic, accessible **React 19 + TypeScript SPA** featuring superellipse ("squircle") geometry, a soothing pastel aesthetic, and interactive Swagger OpenAPI documentation.
 

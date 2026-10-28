@@ -1,6 +1,48 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { calculateOnServer, CalculatorApiError } from './api';
+import { calculateOnServer, CalculatorApiError, getFriendlyError, HUMANIZED_ERRORS } from './api';
 import type { CalculateRequest, CalculateResponse } from '../types/calculator';
+
+describe('Humanized Error Mappings', () => {
+  it('maps all standard error codes to empathetic copy', () => {
+    expect(getFriendlyError('DIVISION_BY_ZERO')).toEqual({
+      title: "Can't divide by zero",
+      message: 'Try dividing by any other number.',
+    });
+    expect(getFriendlyError('NUMERIC_OVERFLOW')).toEqual({
+      title: 'Number is way too big!',
+      message: 'This result exceeds the display capacity.',
+    });
+    expect(getFriendlyError('NEGATIVE_SQUARE_ROOT')).toEqual({
+      title: 'Invalid square root',
+      message: 'Square roots only work with zero or positive numbers.',
+    });
+    expect(getFriendlyError('DOMAIN_ERROR')).toEqual({
+      title: 'Math error',
+      message: "That combination of numbers doesn't have a real answer.",
+    });
+    expect(getFriendlyError('MISSING_OPERAND')).toEqual({
+      title: 'Incomplete calculation',
+      message: 'Please enter a valid number and operation.',
+    });
+    expect(getFriendlyError('INVALID_OPERATION')).toEqual({
+      title: 'Incomplete calculation',
+      message: 'Please enter a valid number and operation.',
+    });
+    expect(getFriendlyError('INVALID_JSON')).toEqual({
+      title: 'Incomplete calculation',
+      message: 'Please enter a valid number and operation.',
+    });
+    expect(getFriendlyError('NETWORK_ERROR')).toEqual({
+      title: 'Calculator server offline',
+      message: 'Please check that the backend service is running.',
+    });
+    expect(getFriendlyError('RANDOM_CODE', 'Custom helper')).toEqual({
+      title: 'Incomplete calculation',
+      message: 'Custom helper',
+    });
+    expect(HUMANIZED_ERRORS.DIVISION_BY_ZERO.title).toBe("Can't divide by zero");
+  });
+});
 
 describe('calculateOnServer', () => {
   const originalFetch = globalThis.fetch;
@@ -143,7 +185,11 @@ describe('calculateOnServer', () => {
       name: 'CalculatorApiError',
       code: 'NETWORK_ERROR',
       status: 0,
-      message: 'Unable to reach calculation service. Please check your connection.',
+      message: 'Calculator server offline',
+      friendly: {
+        title: 'Calculator server offline',
+        message: 'Please check that the backend service is running.',
+      },
     });
   });
 });

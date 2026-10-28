@@ -3,19 +3,13 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import { Calculator } from './Calculator';
 import * as apiService from '../services/api';
 
-vi.mock('../services/api', () => ({
-  calculateOnServer: vi.fn(),
-  CalculatorApiError: class extends Error {
-    readonly code: string;
-    readonly status: number;
-    constructor(message: string, code = 'ERROR', status = 400) {
-      super(message);
-      this.name = 'CalculatorApiError';
-      this.code = code;
-      this.status = status;
-    }
-  },
-}));
+vi.mock('../services/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/api')>();
+  return {
+    ...actual,
+    calculateOnServer: vi.fn(),
+  };
+});
 
 describe('Calculator Component Integration', () => {
   beforeEach(() => {
@@ -186,7 +180,8 @@ describe('Calculator Component Integration', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toBeInTheDocument();
-      expect(screen.getByRole('alert')).toHaveTextContent('division by zero is undefined');
+      expect(screen.getByRole('alert')).toHaveTextContent("Can't divide by zero");
+      expect(screen.getByRole('alert')).toHaveTextContent('Try dividing by any other number.');
     });
 
     // Typing a new digit clears the error
@@ -308,5 +303,68 @@ describe('Calculator Component Integration', () => {
       });
       expect(screen.getByTestId('display-value')).toHaveTextContent('2');
     });
+  });
+
+  it('renders tactile branding, model badge, and live status pill', () => {
+    render(<Calculator />);
+
+    expect(screen.getByTestId('model-badge')).toHaveTextContent('CALC-01');
+    expect(screen.getByTestId('api-status-pill')).toHaveTextContent('API Ready');
+    expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+  });
+
+  it('toggles Day/Night theme and persists preference in localStorage', () => {
+    render(<Calculator />);
+
+    const themeBtn = screen.getByTestId('theme-toggle');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+
+    // Toggle to Dark Mode
+    fireEvent.click(themeBtn);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(localStorage.getItem('calc-theme')).toBe('dark');
+
+    // Toggle back to Light Mode
+    fireEvent.click(themeBtn);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('calc-theme')).toBe('light');
+  });
+
+  it('handles clipboard paste events on window and loads parsed number', () => {
+    render(<Calculator />);
+
+    // Paste formatted number "7,284,123"
+    fireEvent.paste(window, {
+      clipboardData: {
+        getData: (format: string) => (format === 'text' ? '7,284,123' : ''),
+      },
+    });
+
+    // Main display should show formatted number with thousands separators
+    expect(screen.getByTestId('display-value')).toHaveTextContent('7,284,123');
+
+    // Paste non-numeric string should be gracefully ignored
+    fireEvent.paste(window, {
+      clipboardData: {
+        getData: (format: string) => (format === 'text' ? 'not-a-number' : ''),
+      },
+    });
+
+    // Should remain 7,284,123
+    expect(screen.getByTestId('display-value')).toHaveTextContent('7,284,123');
+  });
+
+  it('provides visual feedback on physical keyboard key press', () => {
+    render(<Calculator />);
+
+    const btn7 = screen.getByTestId('btn-7');
+    // Initially resting state has border-b-4
+    expect(btn7.className).toContain('border-b-4');
+
+    // Press key '7'
+    fireEvent.keyDown(window, { key: '7' });
+    // Tactile depressed state applies border-b-0 and translate-y-[3px]
+    expect(btn7.className).toContain('border-b-0');
+    expect(btn7.className).toContain('translate-y-[3px]');
   });
 });

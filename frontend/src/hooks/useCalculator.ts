@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type {
   BinaryOperation,
   UnaryOperation,
   CalculatorState,
   HistoryEntry,
 } from '../types/calculator';
-import { calculateOnServer, CalculatorApiError } from '../services/api';
+import { calculateOnServer, CalculatorApiError, getFriendlyError } from '../services/api';
 
 const OPERATION_SYMBOLS: Record<BinaryOperation, string> = {
   add: '+',
@@ -14,6 +14,15 @@ const OPERATION_SYMBOLS: Record<BinaryOperation, string> = {
   divide: '÷',
   power: '^',
 };
+
+function parseDisplayNumber(val: string): number {
+  const trimmed = val.trim();
+  if (trimmed === '' || trimmed === '-' || trimmed === '-.' || trimmed === '.') {
+    return 0;
+  }
+  const n = Number(trimmed);
+  return Number.isFinite(n) ? n : 0;
+}
 
 export function useCalculator() {
   const [state, setState] = useState<CalculatorState>({
@@ -26,6 +35,8 @@ export function useCalculator() {
     error: null,
     history: [],
   });
+
+  const isLoadingRef = useRef(false);
 
   const appendHistory = (expression: string, result: number) => {
     const entry: HistoryEntry = {
@@ -112,14 +123,26 @@ export function useCalculator() {
   const deleteLast = useCallback(() => {
     setState((prev) => {
       if (prev.error !== null) {
-        return { ...prev, error: null };
+        return {
+          ...prev,
+          displayValue: '0',
+          error: null,
+          waitingForSecondOperand: false,
+        };
       }
 
-      if (prev.waitingForSecondOperand) {
-        return prev;
+      if (prev.waitingForSecondOperand || prev.displayValue.toLowerCase().includes('e')) {
+        return {
+          ...prev,
+          displayValue: '0',
+          waitingForSecondOperand: false,
+        };
       }
 
-      if (prev.displayValue.length <= 1 || (prev.displayValue.length === 2 && prev.displayValue.startsWith('-'))) {
+      if (
+        prev.displayValue.length <= 1 ||
+        (prev.displayValue.length === 2 && prev.displayValue.startsWith('-'))
+      ) {
         return { ...prev, displayValue: '0' };
       }
 
@@ -131,6 +154,7 @@ export function useCalculator() {
   }, []);
 
   const clearAll = useCallback(() => {
+    isLoadingRef.current = false;
     setState((prev) => ({
       ...prev,
       displayValue: '0',
@@ -157,144 +181,210 @@ export function useCalculator() {
     });
   }, []);
 
-  const selectBinaryOperation = useCallback(async (op: BinaryOperation) => {
-    const symbol = OPERATION_SYMBOLS[op];
+  const pasteValue = useCallback((text: string): boolean => {
+    const cleaned = text.replace(/[\s,]/g, '');
+    if (!cleaned) return false;
 
-    if (state.pendingOperation !== null && state.waitingForSecondOperand) {
-      // Operator replacement
-      setState((prev) => ({
-        ...prev,
-        pendingOperation: op,
-        expressionTrail: `${prev.firstOperand} ${symbol}`,
-      }));
-      return;
+    // Validate that it parses as a valid finite number
+    const num = Number(cleaned);
+    if (isNaN(num) || !isFinite(num)) {
+      return false;
     }
 
-    if (state.firstOperand === null) {
-      const current = Number(state.displayValue);
-      setState((prev) => ({
-        ...prev,
-        firstOperand: current,
-        pendingOperation: op,
-        waitingForSecondOperand: true,
-        expressionTrail: `${prev.displayValue} ${symbol}`,
-        error: null,
-      }));
-      return;
+    // Guard length to prevent overflow (15 significant digits)
+    const digitsOnly = cleaned.replace(/[-.]/g, '');
+    if (digitsOnly.length > 15) {
+      return false;
     }
 
-    if (state.firstOperand !== null && !state.waitingForSecondOperand && state.pendingOperation !== null) {
-      // Chained binary evaluation
-      const currentSecond = Number(state.displayValue);
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+    setState((prev) => ({
+      ...prev,
+      displayValue: cleaned,
+      waitingForSecondOperand: false,
+      error: null,
+    }));
+    return true;
+  }, []);
 
-      try {
-        const res = await calculateOnServer({
-          operand1: state.firstOperand,
-          operand2: currentSecond,
-          operation: state.pendingOperation,
-        });
-
-        setState((prev) => ({
-          ...prev,
-          displayValue: String(res.result),
-          firstOperand: res.result,
-          pendingOperation: op,
-          waitingForSecondOperand: true,
-          expressionTrail: `${res.result} ${symbol}`,
-          isLoading: false,
-          error: null,
-          history: appendHistory(res.expression, res.result)(prev.history),
-        }));
-      } catch (err: unknown) {
-        const message = err instanceof CalculatorApiError ? err.message : 'Calculation failed';
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: message,
-        }));
-      }
-    }
-  }, [state.displayValue, state.firstOperand, state.pendingOperation, state.waitingForSecondOperand]);
-
-  const executeUnaryOperation = useCallback(async (op: UnaryOperation) => {
-    const current = Number(state.displayValue);
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      if (op === 'sqrt') {
-        const res = await calculateOnServer({ operand1: current, operation: 'sqrt' });
-
-        if (state.pendingOperation === null) {
-          setState((prev) => ({
-            ...prev,
-            displayValue: String(res.result),
-            expressionTrail: res.expression,
-            waitingForSecondOperand: true,
-            isLoading: false,
-            error: null,
-            history: appendHistory(res.expression, res.result)(prev.history),
-          }));
-        } else {
-          // Inside a pending binary operation (e.g. 10 + sqrt(9))
-          setState((prev) => ({
-            ...prev,
-            displayValue: String(res.result),
-            waitingForSecondOperand: false,
-            isLoading: false,
-            error: null,
-          }));
-        }
+  const selectBinaryOperation = useCallback(
+    async (op: BinaryOperation) => {
+      if (isLoadingRef.current || state.isLoading) {
         return;
       }
 
-      if (op === 'percentage') {
-        if (state.firstOperand === null || state.pendingOperation === null) {
-          // Unary percentage (50% = 0.5)
-          const res = await calculateOnServer({ operand1: current, operation: 'percentage' });
-          setState((prev) => ({
-            ...prev,
-            displayValue: String(res.result),
-            expressionTrail: res.expression,
-            waitingForSecondOperand: true,
-            isLoading: false,
-            error: null,
-            history: appendHistory(res.expression, res.result)(prev.history),
-          }));
-        } else {
-          // Contextual percentage
-          const isAddOrSubtract = state.pendingOperation === 'add' || state.pendingOperation === 'subtract';
+      const symbol = OPERATION_SYMBOLS[op];
+
+      if (state.pendingOperation !== null && state.waitingForSecondOperand) {
+        // Operator replacement
+        setState((prev) => ({
+          ...prev,
+          pendingOperation: op,
+          expressionTrail: `${prev.firstOperand} ${symbol}`,
+        }));
+        return;
+      }
+
+      if (state.firstOperand === null) {
+        const current = parseDisplayNumber(state.displayValue);
+        setState((prev) => ({
+          ...prev,
+          firstOperand: current,
+          pendingOperation: op,
+          waitingForSecondOperand: true,
+          expressionTrail: `${current} ${symbol}`,
+          error: null,
+        }));
+        return;
+      }
+
+      if (
+        state.firstOperand !== null &&
+        !state.waitingForSecondOperand &&
+        state.pendingOperation !== null
+      ) {
+        // Chained binary evaluation
+        const currentSecond = parseDisplayNumber(state.displayValue);
+        isLoadingRef.current = true;
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+        try {
           const res = await calculateOnServer({
-            operand1: isAddOrSubtract ? state.firstOperand : current,
-            operand2: isAddOrSubtract ? current : undefined,
-            operation: 'percentage',
+            operand1: state.firstOperand,
+            operand2: currentSecond,
+            operation: state.pendingOperation,
           });
 
           setState((prev) => ({
             ...prev,
             displayValue: String(res.result),
-            waitingForSecondOperand: false,
+            firstOperand: res.result,
+            pendingOperation: op,
+            waitingForSecondOperand: true,
+            expressionTrail: `${res.result} ${symbol}`,
             isLoading: false,
             error: null,
+            history: appendHistory(res.expression, res.result)(prev.history),
           }));
+        } catch (err: unknown) {
+          const friendly =
+            err instanceof CalculatorApiError
+              ? err.friendly
+              : getFriendlyError('UNKNOWN_ERROR', err instanceof Error ? err.message : undefined);
+          setState((prev) => ({
+            ...prev,
+            pendingOperation: null,
+            waitingForSecondOperand: true,
+            isLoading: false,
+            error: friendly,
+          }));
+        } finally {
+          isLoadingRef.current = false;
         }
       }
-    } catch (err: unknown) {
-      const message = err instanceof CalculatorApiError ? err.message : 'Calculation failed';
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: message,
-      }));
-    }
-  }, [state.displayValue, state.firstOperand, state.pendingOperation]);
+    },
+    [state.displayValue, state.firstOperand, state.pendingOperation, state.waitingForSecondOperand, state.isLoading]
+  );
+
+  const executeUnaryOperation = useCallback(
+    async (op: UnaryOperation) => {
+      if (isLoadingRef.current || state.isLoading) {
+        return;
+      }
+
+      const current = parseDisplayNumber(state.displayValue);
+      isLoadingRef.current = true;
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      try {
+        if (op === 'sqrt') {
+          const res = await calculateOnServer({ operand1: current, operation: 'sqrt' });
+
+          if (state.pendingOperation === null) {
+            setState((prev) => ({
+              ...prev,
+              displayValue: String(res.result),
+              expressionTrail: res.expression,
+              waitingForSecondOperand: true,
+              isLoading: false,
+              error: null,
+              history: appendHistory(res.expression, res.result)(prev.history),
+            }));
+          } else {
+            // Inside a pending binary operation (e.g. 10 + sqrt(9))
+            setState((prev) => ({
+              ...prev,
+              displayValue: String(res.result),
+              waitingForSecondOperand: false,
+              isLoading: false,
+              error: null,
+            }));
+          }
+          return;
+        }
+
+        if (op === 'percentage') {
+          if (state.firstOperand === null || state.pendingOperation === null) {
+            // Unary percentage (50% = 0.5)
+            const res = await calculateOnServer({ operand1: current, operation: 'percentage' });
+            setState((prev) => ({
+              ...prev,
+              displayValue: String(res.result),
+              expressionTrail: res.expression,
+              waitingForSecondOperand: true,
+              isLoading: false,
+              error: null,
+              history: appendHistory(res.expression, res.result)(prev.history),
+            }));
+          } else {
+            // Contextual percentage
+            const isAddOrSubtract =
+              state.pendingOperation === 'add' || state.pendingOperation === 'subtract';
+            const res = await calculateOnServer({
+              operand1: isAddOrSubtract ? state.firstOperand : current,
+              operand2: isAddOrSubtract ? current : undefined,
+              operation: 'percentage',
+            });
+
+            setState((prev) => ({
+              ...prev,
+              displayValue: String(res.result),
+              waitingForSecondOperand: false,
+              isLoading: false,
+              error: null,
+            }));
+          }
+        }
+      } catch (err: unknown) {
+        const friendly =
+          err instanceof CalculatorApiError
+            ? err.friendly
+            : getFriendlyError('UNKNOWN_ERROR', err instanceof Error ? err.message : undefined);
+        setState((prev) => ({
+          ...prev,
+          pendingOperation: null,
+          waitingForSecondOperand: true,
+          isLoading: false,
+          error: friendly,
+        }));
+      } finally {
+        isLoadingRef.current = false;
+      }
+    },
+    [state.displayValue, state.firstOperand, state.pendingOperation, state.isLoading]
+  );
 
   const evaluate = useCallback(async () => {
-    if (state.firstOperand === null || state.pendingOperation === null) {
+    if (
+      isLoadingRef.current ||
+      state.isLoading ||
+      state.firstOperand === null ||
+      state.pendingOperation === null
+    ) {
       return;
     }
 
-    const currentSecond = Number(state.displayValue);
+    const currentSecond = parseDisplayNumber(state.displayValue);
+    isLoadingRef.current = true;
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
@@ -316,14 +406,21 @@ export function useCalculator() {
         history: appendHistory(res.expression, res.result)(prev.history),
       }));
     } catch (err: unknown) {
-      const message = err instanceof CalculatorApiError ? err.message : 'Calculation failed';
+      const friendly =
+        err instanceof CalculatorApiError
+          ? err.friendly
+          : getFriendlyError('UNKNOWN_ERROR', err instanceof Error ? err.message : undefined);
       setState((prev) => ({
         ...prev,
+        pendingOperation: null,
+        waitingForSecondOperand: true,
         isLoading: false,
-        error: message,
+        error: friendly,
       }));
+    } finally {
+      isLoadingRef.current = false;
     }
-  }, [state.displayValue, state.firstOperand, state.pendingOperation]);
+  }, [state.displayValue, state.firstOperand, state.pendingOperation, state.isLoading]);
 
   const selectHistoryItem = useCallback((result: number) => {
     setState((prev) => ({
@@ -345,6 +442,7 @@ export function useCalculator() {
     deleteLast,
     clearAll,
     toggleSign,
+    pasteValue,
     selectBinaryOperation,
     executeUnaryOperation,
     evaluate,
