@@ -266,7 +266,7 @@ export const Calculator: React.FC = () => {
   return (
     <div
       data-testid="calculator-chassis"
-      className="bg-[#F8F9FA] dark:bg-[#151B28] rounded-[2.5rem] p-5 sm:p-7 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.85)] border border-white dark:border-slate-700/80 max-w-sm sm:max-w-md w-full mx-auto relative transition-colors duration-200"
+      className="bg-[#F8F9FA] dark:bg-[#151B28] rounded-[2.5rem] p-5 sm:p-7 shadow-[0_12px_32px_-6px_rgba(0,0,0,0.08),0_4px_12px_-2px_rgba(0,0,0,0.04)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.7)] border border-white dark:border-slate-700/80 max-w-sm sm:max-w-md w-full mx-auto relative transition-colors duration-200"
     >
       {/* Top Header Bar: Model Badge, Status Pill, Theme Toggle & History */}
       <div className="flex items-center justify-between mb-4 px-1 gap-2">
