@@ -121,4 +121,35 @@ describe('Display Component', () => {
     );
     expect(screen.getByTestId('display-value').className).toContain('text-xl');
   });
+
+  it('renders waiting indicator when awaiting second operand and dims display value 0', () => {
+    const { rerender } = render(
+      <Display
+        displayValue="0"
+        expressionTrail="42 +"
+        error={null}
+        isLoading={false}
+        waitingForSecondOperand={true}
+        pendingOperation="add"
+      />
+    );
+
+    expect(screen.getByTestId('waiting-indicator')).toHaveTextContent('Next number');
+    expect(screen.getByTestId('display-value').className).toContain('text-slate-400');
+
+    // Once typing begins and waiting is false, indicator hides and display un-dims
+    rerender(
+      <Display
+        displayValue="5"
+        expressionTrail="42 +"
+        error={null}
+        isLoading={false}
+        waitingForSecondOperand={false}
+        pendingOperation="add"
+      />
+    );
+
+    expect(screen.queryByTestId('waiting-indicator')).not.toBeInTheDocument();
+    expect(screen.getByTestId('display-value').className).toContain('text-slate-700');
+  });
 });

@@ -18,6 +18,28 @@
   --color-pastel-danger-text: #C9184A;
 }
 
+/* Background dot grid pattern for the application */
+.bg-dots-pattern {
+  background-image: radial-gradient(rgba(100, 116, 139, 0.22) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.dark .bg-dots-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/* Subtle dot texture for calculator chassis */
+.bg-calculator-dots {
+  background-image: radial-gradient(rgba(99, 102, 241, 0.14) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+.dark .bg-calculator-dots {
+  background-image: radial-gradient(rgba(209, 215, 255, 0.08) 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
 body {
   margin: 0;
   min-height: 100vh;

@@ -594,5 +594,53 @@ describe('useCalculator Hook', () => {
       expect(result.current.state.firstOperand).toBe(0);
       expect(result.current.state.error).toBeNull();
     });
+
+    it('resets display value to 0 and updates expression trail when binary operator is selected', () => {
+      const { result } = renderHook(() => useCalculator());
+
+      act(() => {
+        result.current.inputDigit('4');
+        result.current.inputDigit('2');
+      });
+      expect(result.current.state.displayValue).toBe('42');
+
+      act(() => {
+        void result.current.selectBinaryOperation('add');
+      });
+
+      // Display value must reset to '0' indicating readiness for the second operand
+      expect(result.current.state.displayValue).toBe('0');
+      expect(result.current.state.firstOperand).toBe(42);
+      expect(result.current.state.pendingOperation).toBe('add');
+      expect(result.current.state.expressionTrail).toBe('42 +');
+      expect(result.current.state.waitingForSecondOperand).toBe(true);
+
+      // Typing the next digit replaces the '0'
+      act(() => {
+        result.current.inputDigit('8');
+      });
+      expect(result.current.state.displayValue).toBe('8');
+      expect(result.current.state.waitingForSecondOperand).toBe(false);
+    });
+
+    it('keeps display value as 0 when changing consecutive operators', () => {
+      const { result } = renderHook(() => useCalculator());
+
+      act(() => {
+        result.current.inputDigit('9');
+      });
+      act(() => {
+        void result.current.selectBinaryOperation('add');
+      });
+      expect(result.current.state.displayValue).toBe('0');
+      expect(result.current.state.expressionTrail).toBe('9 +');
+
+      act(() => {
+        void result.current.selectBinaryOperation('multiply');
+      });
+      expect(result.current.state.displayValue).toBe('0');
+      expect(result.current.state.pendingOperation).toBe('multiply');
+      expect(result.current.state.expressionTrail).toBe('9 ×');
+    });
   });
 });

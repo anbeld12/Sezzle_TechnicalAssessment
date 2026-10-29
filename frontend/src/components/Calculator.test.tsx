@@ -589,5 +589,33 @@ describe('Calculator Component Integration', () => {
         expect(screen.getByTestId('display-value')).toHaveTextContent('24');
       });
     });
+
+    it('renders the decorative dot texture layer on the calculator chassis', () => {
+      render(<Calculator />);
+      expect(screen.getByTestId('calculator-dot-texture')).toBeInTheDocument();
+      expect(screen.getByTestId('calculator-dot-texture')).toHaveClass('bg-calculator-dots');
+    });
+
+    it('changes display value to 0 and shows waiting indicator when operator is clicked', () => {
+      render(<Calculator />);
+
+      // Type 45
+      fireEvent.click(screen.getByTestId('btn-4'));
+      fireEvent.click(screen.getByTestId('btn-5'));
+      expect(screen.getByTestId('display-value')).toHaveTextContent('45');
+
+      // Click + operator
+      fireEvent.click(screen.getByTestId('btn-add'));
+
+      // Value resets to 0 and waiting indicator is shown
+      expect(screen.getByTestId('display-value')).toHaveTextContent('0');
+      expect(screen.getByTestId('expression-trail')).toHaveTextContent('45 +');
+      expect(screen.getByTestId('waiting-indicator')).toHaveTextContent('Next number');
+
+      // Type second number 9
+      fireEvent.click(screen.getByTestId('btn-9'));
+      expect(screen.getByTestId('display-value')).toHaveTextContent('9');
+      expect(screen.queryByTestId('waiting-indicator')).not.toBeInTheDocument();
+    });
   });
 });

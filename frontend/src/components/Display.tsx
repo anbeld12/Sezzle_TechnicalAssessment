@@ -10,6 +10,8 @@ interface DisplayProps {
   isLoading: boolean;
   isCopied?: boolean;
   onCopy?: () => void;
+  waitingForSecondOperand?: boolean;
+  pendingOperation?: string | null;
 }
 
 export const Display: React.FC<DisplayProps> = ({
@@ -19,6 +21,8 @@ export const Display: React.FC<DisplayProps> = ({
   isLoading,
   isCopied = false,
   onCopy,
+  waitingForSecondOperand = false,
+  pendingOperation = null,
 }) => {
   const formattedValue = formatDisplayNumber(displayValue);
 
@@ -32,6 +36,7 @@ export const Display: React.FC<DisplayProps> = ({
 
   const errorTitle = error ? (typeof error === 'string' ? error : error.title) : null;
   const errorMessage = error && typeof error !== 'string' ? error.message : null;
+  const isAwaitingSecond = Boolean(waitingForSecondOperand && pendingOperation && !error && !isLoading);
 
   return (
     <div className="bg-white/90 dark:bg-[#04060C] rounded-3xl p-4 sm:p-5 shadow-inner border border-slate-200/70 dark:border-slate-700/90 flex flex-col justify-between min-h-[7.5rem] relative transition-colors duration-200">
@@ -61,17 +66,24 @@ export const Display: React.FC<DisplayProps> = ({
             >
               ✓ Copied to clipboard
             </span>
-          ) : (
-            isLoading && (
-              <span
-                className="flex items-center gap-1 text-indigo-500 dark:text-[#D1D7FF] font-medium animate-pulse"
-                role="status"
-              >
-                <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2.2} />
-                Calculating...
-              </span>
-            )
-          )}
+          ) : isLoading ? (
+            <span
+              className="flex items-center gap-1 text-indigo-500 dark:text-[#D1D7FF] font-medium animate-pulse"
+              role="status"
+            >
+              <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2.2} />
+              Calculating...
+            </span>
+          ) : isAwaitingSecond ? (
+            <span
+              role="status"
+              data-testid="waiting-indicator"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100/90 text-amber-800 border border-amber-300/70 dark:bg-amber-950/70 dark:text-amber-200 dark:border-amber-700/60 animate-fadeIn"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse" />
+              <span>Next number</span>
+            </span>
+          ) : null}
         </div>
         <div
           data-testid="expression-trail"
@@ -84,9 +96,11 @@ export const Display: React.FC<DisplayProps> = ({
       {/* Main Display Value */}
       <div
         data-testid="display-value"
-        className={`text-right text-slate-700 dark:text-white font-bold tracking-tight tabular-nums overflow-x-auto overflow-y-hidden select-all ${getFontSize(
-          formattedValue
-        )}`}
+        className={`text-right font-bold tracking-tight tabular-nums overflow-x-auto overflow-y-hidden select-all transition-colors duration-150 ${
+          isAwaitingSecond && displayValue === '0'
+            ? 'text-slate-400 dark:text-slate-500'
+            : 'text-slate-700 dark:text-white'
+        } ${getFontSize(formattedValue)}`}
       >
         {formattedValue}
       </div>

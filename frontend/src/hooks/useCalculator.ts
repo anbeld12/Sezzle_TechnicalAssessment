@@ -219,6 +219,7 @@ export function useCalculator() {
         setState((prev) => ({
           ...prev,
           pendingOperation: op,
+          displayValue: '0',
           expressionTrail: `${prev.firstOperand} ${symbol}`,
         }));
         return;
@@ -228,6 +229,7 @@ export function useCalculator() {
         const current = parseDisplayNumber(state.displayValue);
         setState((prev) => ({
           ...prev,
+          displayValue: '0',
           firstOperand: current,
           pendingOperation: op,
           waitingForSecondOperand: true,
@@ -291,7 +293,11 @@ export function useCalculator() {
         return;
       }
 
-      const current = parseDisplayNumber(state.displayValue);
+      const current =
+        state.waitingForSecondOperand && state.firstOperand !== null && state.displayValue === '0'
+          ? state.firstOperand
+          : parseDisplayNumber(state.displayValue);
+
       isLoadingRef.current = true;
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
