@@ -82,7 +82,7 @@ Demonstrates multiplication, division, sign toggling (`±`), and division-by-zer
 
 Demonstrates unary square roots ($\sqrt{x}$), powers ($x^y$), and contextual percentage calculations ($b\%$ of $a$).
 
-> *Note: Exponentiation, square root, and percentage logic are verified in Go domain unit tests and interactive UI.*
+![Advanced Operations: Exponentiation, Square Root & Percentage](docs/assets/03-power-sqrt-percentage.gif)
 </details>
 
 <details>
