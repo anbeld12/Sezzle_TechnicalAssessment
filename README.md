@@ -455,15 +455,15 @@ npm run build
 | `src/services/api.ts` | 95.3% | 82.9% | 100.0% | 95.3% |
 | `src/hooks/useCalculator.ts` | 95.0% | 78.0% | 100.0% | 95.0% |
 | `src/components/Keypad.tsx` | 94.7% | 100.0% | 94.4% | 94.7% |
-| `src/hooks/useApiHealth.ts` | 87.5% | 87.5% | 100.0% | 87.5% |
+| `src/hooks/useApiHealth.ts` | 82.4% | 50.0% | 100.0% | 82.4% |
 | `src/components/Calculator.tsx` | 86.0% | 85.3% | 100.0% | 86.0% |
-| **All Files Total (82 tests)** | **92.8%** | **84.1%** | **99.1%** | **92.8%** |
+| **All Files Total (82 tests)** | **92.4%** | **82.8%** | **99.1%** | **92.3%** |
 
 ---
 
 ## AI Tooling & Prompts Log
 
-In compliance with the assessment instructions (*"Share any prompts that you used in your work"*), this project employed a six-phase agentic AI engineering workflow inside Antigravity. Each phase below lists the model, the role it was given, its mission, and the primary prompt used (abridged where long; the key directives are quoted verbatim).
+In compliance with the assessment instructions (*"Share any prompts that you used in your work"*), this project employed an eight-phase agentic AI engineering workflow inside Antigravity. Each phase below lists the model, the role it was given, its mission, and the primary prompt used (abridged where long; the key directives are quoted verbatim).
 
 | Phase | Focus | Model | Commit |
 | :---: | :--- | :--- | :--- |
@@ -473,6 +473,8 @@ In compliance with the assessment instructions (*"Share any prompts that you use
 | 4 | Keyboard modifier hardening, clipboard & WCAG dark mode | Claude Opus 5.5 Medium | `fix(ux): support ctrl+c clipboard copy with feedback, improve dark mode contrast and update branding` |
 | 5 | Calculation history drawer polish & clipboard copy | Claude Opus 5.5 Medium | `fix(ui): remove misleading enter icon and add copy-to-clipboard button in history drawer` |
 | 6 | Real API health polling, shortcuts modal & custom favicons | Claude Opus 5.5 Medium | `feat(ux): add real-time api health status, shortcuts modal, custom favicons and update repo url` |
+| 7 | UI & asset refinements: chassis shadow, footer spacing & transparent favicons | Gemini 3.8 Flash High | `f6c9465`, `55f4db6`, `6cde6a9` |
+| 8 | Pre-submission rubric audit, path sanitization & quality gate | Gemini 3.8 Flash High | `docs(audit): sanitize local paths, sync coverage metrics and finalize prompts log` |
 
 ### Prompt 1 — Phase 1: Staff Architecture & Formal Specification
 - **Model:** Gemini 4 Argon High
@@ -515,3 +517,18 @@ In compliance with the assessment instructions (*"Share any prompts that you use
 - **Mission:** Eliminate contradictory "API Ready / Bad Gateway" UI states by replacing the static chassis pill with a dynamic `useApiHealth` polling hook querying `GET /api/v1/health` on mount, periodically (10s), and on error; humanize 502/503/504 Bad Gateway and network drop errors as empathetic `"Server Offline"` messages; replace static unclickable footer keycaps with an accessible, keyboard-navigable `ShortcutsModal`; install custom favicon assets from `favicon_io`; and update official repository links.
 - **Primary Prompt Used:**
   > *"When the Go backend is stopped, the top chassis bar continues to display a static green '● API Ready' pill, while the display presents a contradictory error: 'Incomplete calculation / Bad Gateway'... Implement dynamic health status polling (`useApiHealth`) querying `GET /api/v1/health` on initial mount, periodically (10s), and on API failure... Map 502/503/504 and connection drops to 'Server Offline' ('Cannot connect to the calculation service. Please make sure the backend is running')... Refactor footer shortcuts into an interactive Keyboard Shortcuts modal with Lucide `Keyboard` icon... Install custom favicon assets from `favicon_io` into `frontend/public/` and update `index.html`... Update official repository URLs to `https://github.com/anbeld12/Sezzle_TechnicalAssessment`... commit: `feat(ux): add real-time api health status, shortcuts modal, custom favicons and update repo url`."*
+
+### Prompt 7 — Phase 7: UI & Asset Refinements — Chassis Shadow, Footer Spacing & Transparent Favicons
+- **Model:** Gemini 3.8 Flash High
+- **Role:** Design Systems & Frontend Polish Engineer
+- **Mission:** Address subtle visual defects: eliminate persistent operator highlight state when typing next digits, prevent native button focus retention on `Enter` keypresses, replace opaque black favicon assets with transparent background icons matching browser themes, reduce outer chassis box-shadow spread to eliminate visual clutter, and increase vertical padding/margins between the calculator chassis and footer branding.
+- **Primary Prompts Used:**
+  > *"Remove persistent operator highlight when a second operand is entered; ensure pressing Enter evaluates without re-triggering active button focus rings; update project favicons with crisp transparent-background PNG/ICO assets; adjust the calculator chassis drop shadow to a subtle, soft elevation; and increase the vertical footer spacing to guarantee zero overlap on compact laptop viewports."*
+
+### Prompt 8 — Phase 8: Final Pre-Submission Rubric Audit & Quality Gate
+- **Model:** Gemini 3.8 Flash High
+- **Role:** Principal Staff Engineer & Technical Hiring Evaluator
+- **Mission:** Perform an exhaustive, file-by-file audit of the entire repository against every rubric requirement; sanitize all absolute local filesystem paths (`/home/acbel/...`) to clean relative paths (`./backend`, `./frontend`, `IMPLEMENTATION_PLAN.md`); remove duplicate root asset directories (`favicon_io/`); verify and synchronize backend (`97.8%`) and frontend (`92.4%`) test coverage metrics with fresh terminal execution outputs; and ensure 100% of all code, comments, and documentation are idiomatic, accessible, and in English.
+- **Primary Prompt Used:**
+  > *"Act as a Principal Staff Engineer and Technical Hiring Evaluator reviewing this repository against the official assessment rubric. Your mission is to perform an exhaustive, file-by-file audit of the entire repository—including source code, comments, tests, coverage reports, Docker files, Git history, and README.md—against every single requirement... Sanitize all local paths, verify test coverage tables match real terminal output right now, verify multi-stage Dockerfiles and compose orchestration, and document all prompts used across our iterative workflow."*
+

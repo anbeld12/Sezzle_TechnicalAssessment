@@ -2,7 +2,7 @@
 
 > **Document Status:** Locked Architectural Blueprint (Phase 1)  
 > **Target Executor:** Gemini 3.8 Flash High (Phase 2)  
-> **Repository Root:** `/home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment`  
+> **Repository Root:** `.`  
 > **Backend Stack:** Go (`module calculator-backend`, `net/http` Go 1.22+ enhanced routing, `swaggo/swag`)  
 > **Frontend Stack:** React 19 + TypeScript + Vite 8 + Tailwind CSS + Lucide React + Vitest/RTL  
 
@@ -473,8 +473,8 @@ backend/
 
 #### 1.3 Deterministic Verification Commands
 ```bash
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend && go test -v -race -coverprofile=coverage_domain.out ./internal/calculator/...
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend && go tool cover -func=coverage_domain.out && rm -f coverage_domain.out
+cd backend && go test -v -race -coverprofile=coverage_domain.out ./internal/calculator/...
+cd backend && go tool cover -func=coverage_domain.out && rm -f coverage_domain.out
 ```
 *Success Criteria:* All table-driven subtests pass; `internal/calculator` statement coverage is $\ge 95\%$.
 
@@ -501,7 +501,7 @@ backend/
 
 1. **Install Swagger Dependencies & Generate OpenAPI Spec:**
    ```bash
-   cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend
+   cd backend
    go get github.com/swaggo/swag/cmd/swag@latest
    go get github.com/swaggo/http-swagger@latest
    ```
@@ -525,7 +525,7 @@ backend/
    - Configures `http.Server` with `ReadTimeout: 5 * time.Second`, `WriteTimeout: 10 * time.Second`, `IdleTimeout: 60 * time.Second`, and graceful `SIGINT`/`SIGTERM` shutdown.
 6. **Generate Swagger Docs:**
    ```bash
-   cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend
+   cd backend
    go run github.com/swaggo/swag/cmd/swag@latest init -g cmd/server/main.go -o docs
    go mod tidy
    ```
@@ -540,10 +540,10 @@ backend/
 
 #### 2.3 Deterministic Verification Commands
 ```bash
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend && go vet ./...
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend && go test -v -race -coverprofile=coverage.out ./internal/...
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend && go tool cover -func=coverage.out && rm -f coverage.out
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend && go build -o bin/server ./cmd/server && rm -rf bin
+cd backend && go vet ./...
+cd backend && go test -v -race -coverprofile=coverage.out ./internal/...
+cd backend && go tool cover -func=coverage.out && rm -f coverage.out
+cd backend && go build -o bin/server ./cmd/server && rm -rf bin
 ```
 *Success Criteria:* `go vet` reports 0 warnings; all unit and HTTP tests pass with `-race`; combined backend statement coverage across `internal/...` is $\ge 90\%$; binary compiles cleanly.
 
@@ -569,7 +569,7 @@ frontend/
 
 1. **Install Frontend Dependencies:**
    ```bash
-   cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend
+   cd frontend
    npm install tailwindcss @tailwindcss/vite lucide-react
    npm install -D vitest @vitest/coverage-v8 jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event
    ```
@@ -649,9 +649,9 @@ frontend/
 
 #### 3.3 Deterministic Verification Commands
 ```bash
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm run lint
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm test -- src/services/api.test.ts
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm run build
+cd frontend && npm run lint
+cd frontend && npm test -- src/services/api.test.ts
+cd frontend && npm run build
 ```
 *Success Criteria:* `oxlint` passes with 0 errors; `api.test.ts` passes; `tsc -b && vite build` succeeds.
 
@@ -753,9 +753,9 @@ frontend/
 
 #### 4.3 Deterministic Verification Commands
 ```bash
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm run lint
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm run test:coverage
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm run build
+cd frontend && npm run lint
+cd frontend && npm run test:coverage
+cd frontend && npm run build
 ```
 *Success Criteria:* `oxlint` passes with 0 errors; all Vitest suites (`api.test.ts`, `useCalculator.test.ts`, `Calculator.test.tsx`) pass; frontend statement/line coverage is $\ge 85\%$; production bundle builds cleanly.
 
@@ -899,7 +899,7 @@ cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm ru
 ### Milestone 6: Final Documentation (`README.md`) & Final Quality Gate
 
 #### 6.1 Target File
-- `/home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/README.md` (and remove boilerplate `frontend/README.md` or replace with pointer to root `README.md`).
+- `README.md` (and remove boilerplate `frontend/README.md` or replace with pointer to root `README.md`).
 
 #### 6.2 Required Sections in `README.md`
 1. **Project Overview & Key Features:** Summary of the full-stack architecture, all 7 operations (basic + advanced), IEEE 754 precision normalization, Swagger OpenAPI UI, and the Soft-Pastel Squircle UX with full keyboard accessibility.
@@ -922,7 +922,7 @@ cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm ru
 
 #### 6.3 Final Verification Gate Commands
 ```bash
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/backend && go vet ./... && go test -race -cover ./internal/...
-cd /home/acbel/Documents/Proyectos/Sezzle_TechnicalAssessment/frontend && npm run lint && npm run test:coverage && npm run build
+cd backend && go vet ./... && go test -race -cover ./internal/...
+cd frontend && npm run lint && npm run test:coverage && npm run build
 git status
 ```
