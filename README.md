@@ -491,11 +491,11 @@ npm run build
 | `src/components/ShortcutsModal.tsx` | 100.0% | 87.5% | 100.0% | 100.0% |
 | `src/utils/formatters.ts` | 100.0% | 72.2% | 100.0% | 100.0% |
 | `src/services/api.ts` | 95.3% | 82.9% | 100.0% | 95.3% |
-| `src/hooks/useCalculator.ts` | 95.0% | 78.0% | 100.0% | 95.0% |
+| `src/hooks/useCalculator.ts` | 95.0% | 79.0% | 100.0% | 95.0% |
 | `src/components/Keypad.tsx` | 94.7% | 100.0% | 94.4% | 94.7% |
 | `src/hooks/useApiHealth.ts` | 82.4% | 50.0% | 100.0% | 82.4% |
 | `src/components/Calculator.tsx` | 86.0% | 85.3% | 100.0% | 86.0% |
-| **All Files Total (82 tests)** | **92.4%** | **82.8%** | **99.1%** | **92.3%** |
+| **All Files Total (87 tests)** | **92.4%** | **83.6%** | **99.1%** | **92.3%** |
 
 ---
 
@@ -566,7 +566,7 @@ In compliance with the assessment instructions (*"Share any prompts that you use
 ### Prompt 8 — Phase 8: Final Pre-Submission Rubric Audit & Quality Gate
 - **Model:** Gemini 3.8 Flash High
 - **Role:** Principal Staff Engineer & Technical Hiring Evaluator
-- **Mission:** Perform an exhaustive, file-by-file audit of the entire repository against every rubric requirement; sanitize all absolute local filesystem paths (`/home/acbel/...`) to clean relative paths (`./backend`, `./frontend`, `IMPLEMENTATION_PLAN.md`); remove duplicate root asset directories (`favicon_io/`); verify and synchronize backend (`97.8%`) and frontend (`92.4%`) test coverage metrics with fresh terminal execution outputs; and ensure 100% of all code, comments, and documentation are idiomatic, accessible, and in English.
+- **Mission:** Perform an exhaustive, file-by-file audit of the entire repository against every rubric requirement; sanitize all absolute local filesystem paths to clean relative paths (`./backend`, `./frontend`, `IMPLEMENTATION_PLAN.md`); remove duplicate root asset directories (`favicon_io/`); verify and synchronize backend (`97.8%`) and frontend (`92.4%`) test coverage metrics with fresh terminal execution outputs; and ensure 100% of all code, comments, and documentation are idiomatic, accessible, and in English.
 - **Primary Prompt Used:**
   > *"Act as a Principal Staff Engineer and Technical Hiring Evaluator reviewing this repository against the official assessment rubric. Your mission is to perform an exhaustive, file-by-file audit of the entire repository—including source code, comments, tests, coverage reports, Docker files, Git history, and README.md—against every single requirement... Sanitize all local paths, verify test coverage tables match real terminal output right now, verify multi-stage Dockerfiles and compose orchestration, and document all prompts used across our iterative workflow."*
 

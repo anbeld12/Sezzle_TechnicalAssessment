@@ -376,7 +376,13 @@ export function useCalculator() {
         isLoadingRef.current = false;
       }
     },
-    [state.displayValue, state.firstOperand, state.pendingOperation, state.isLoading]
+    [
+      state.displayValue,
+      state.firstOperand,
+      state.pendingOperation,
+      state.waitingForSecondOperand,
+      state.isLoading,
+    ]
   );
 
   const evaluate = useCallback(async () => {
