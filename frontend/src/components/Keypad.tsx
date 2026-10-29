@@ -20,7 +20,6 @@ interface KeypadProps {
   onBinaryOperation: (op: BinaryOperation) => void;
   onUnaryOperation: (op: UnaryOperation) => void;
   onEvaluate: () => void;
-  pendingOperation: BinaryOperation | null;
   isLoading: boolean;
   pressedKeyId?: string | null;
 }
@@ -34,7 +33,6 @@ export const Keypad: React.FC<KeypadProps> = ({
   onBinaryOperation,
   onUnaryOperation,
   onEvaluate,
-  pendingOperation,
   isLoading,
   pressedKeyId,
 }) => {
@@ -55,7 +53,6 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="advanced-op"
         onClick={() => onBinaryOperation('power')}
         disabled={isLoading}
-        isActive={pendingOperation === 'power'}
         isPressed={pressedKeyId === 'btn-power'}
         ariaLabel="Exponentiate"
         testId="btn-power"
@@ -107,7 +104,6 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="basic-op"
         onClick={() => onBinaryOperation('divide')}
         disabled={isLoading}
-        isActive={pendingOperation === 'divide'}
         isPressed={pressedKeyId === 'btn-divide'}
         ariaLabel="Divide"
         testId="btn-divide"
@@ -147,7 +143,6 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="basic-op"
         onClick={() => onBinaryOperation('multiply')}
         disabled={isLoading}
-        isActive={pendingOperation === 'multiply'}
         isPressed={pressedKeyId === 'btn-multiply'}
         ariaLabel="Multiply"
         testId="btn-multiply"
@@ -187,7 +182,6 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="basic-op"
         onClick={() => onBinaryOperation('subtract')}
         disabled={isLoading}
-        isActive={pendingOperation === 'subtract'}
         isPressed={pressedKeyId === 'btn-subtract'}
         ariaLabel="Subtract"
         testId="btn-subtract"
@@ -227,7 +221,6 @@ export const Keypad: React.FC<KeypadProps> = ({
         variant="basic-op"
         onClick={() => onBinaryOperation('add')}
         disabled={isLoading}
-        isActive={pendingOperation === 'add'}
         isPressed={pressedKeyId === 'btn-add'}
         ariaLabel="Add"
         testId="btn-add"

@@ -34,7 +34,7 @@ export const Display: React.FC<DisplayProps> = ({
   const errorMessage = error && typeof error !== 'string' ? error.message : null;
 
   return (
-    <div className="bg-white/90 dark:bg-[#0F172A] rounded-3xl p-4 sm:p-5 shadow-inner border border-slate-200/70 dark:border-slate-700/90 flex flex-col justify-between min-h-[7.5rem] relative transition-colors duration-200">
+    <div className="bg-white/90 dark:bg-[#04060C] rounded-3xl p-4 sm:p-5 shadow-inner border border-slate-200/70 dark:border-slate-700/90 flex flex-col justify-between min-h-[7.5rem] relative transition-colors duration-200">
       {/* Copy control, status feedback & expression trail */}
       <div className="flex items-center justify-between gap-2 min-h-[1.5rem] mb-1">
         <div className="flex items-center gap-1.5 text-xs shrink-0">
@@ -44,10 +44,10 @@ export const Display: React.FC<DisplayProps> = ({
               onClick={onCopy}
               aria-label="Copy result to clipboard"
               data-testid="btn-copy"
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/80 transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
             >
               {isCopied ? (
-                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-[#8CE9AC]" strokeWidth={2.4} />
+                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-[#9AF5BA]" strokeWidth={2.4} />
               ) : (
                 <Copy className="w-3.5 h-3.5" strokeWidth={2.2} />
               )}
@@ -57,14 +57,14 @@ export const Display: React.FC<DisplayProps> = ({
             <span
               role="status"
               data-testid="copy-feedback"
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300/70 dark:bg-[#143829] dark:text-[#8CE9AC] dark:border-[#235C44] animate-fadeIn"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300/70 dark:bg-[#0E3522] dark:text-[#9AF5BA] dark:border-[#1E6B44] animate-fadeIn"
             >
               ✓ Copied to clipboard
             </span>
           ) : (
             isLoading && (
               <span
-                className="flex items-center gap-1 text-indigo-500 dark:text-[#C7CEFF] font-medium animate-pulse"
+                className="flex items-center gap-1 text-indigo-500 dark:text-[#D1D7FF] font-medium animate-pulse"
                 role="status"
               >
                 <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={2.2} />
@@ -84,7 +84,7 @@ export const Display: React.FC<DisplayProps> = ({
       {/* Main Display Value */}
       <div
         data-testid="display-value"
-        className={`text-right text-slate-700 dark:text-slate-50 font-bold tracking-tight tabular-nums overflow-x-auto overflow-y-hidden select-all ${getFontSize(
+        className={`text-right text-slate-700 dark:text-white font-bold tracking-tight tabular-nums overflow-x-auto overflow-y-hidden select-all ${getFontSize(
           formattedValue
         )}`}
       >
@@ -96,9 +96,9 @@ export const Display: React.FC<DisplayProps> = ({
         <div
           role="alert"
           data-testid="error-banner"
-          className="mt-2 bg-[#FFE5EC] text-[#C9184A] border border-[#FFCCD5] dark:bg-[#421C29] dark:text-[#FFADC5] dark:border-[#692C41] rounded-xl px-3 py-2 text-xs font-medium flex items-start gap-2 shadow-sm animate-fadeIn leading-snug text-left"
+          className="mt-2 bg-[#FFE5EC] text-[#C9184A] border border-[#FFCCD5] dark:bg-[#3D1622] dark:text-[#FFB5CA] dark:border-[#6E283E] rounded-xl px-3 py-2 text-xs font-medium flex items-start gap-2 shadow-sm animate-fadeIn leading-snug text-left"
         >
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#C9184A] dark:text-[#FFADC5]" strokeWidth={2.2} />
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#C9184A] dark:text-[#FFB5CA]" strokeWidth={2.2} />
           <div className="flex flex-col">
             <span className="font-bold">{errorTitle}</span>
             {errorMessage && (

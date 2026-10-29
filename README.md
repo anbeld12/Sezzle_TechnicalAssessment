@@ -452,8 +452,8 @@ npm run build
 | `src/services/api.ts` | 96.6% | 70.0% | 100.0% | 96.6% |
 | `src/hooks/useCalculator.ts` | 95.0% | 78.0% | 100.0% | 95.0% |
 | `src/components/Keypad.tsx` | 94.7% | 100.0% | 94.4% | 94.7% |
-| `src/components/Calculator.tsx` | 85.4% | 82.3% | 100.0% | 85.4% |
-| **All Files Total (54 tests)** | **91.8%** | **81.8%** | **98.9%** | **91.7%** |
+| `src/components/Calculator.tsx` | 85.6% | 84.2% | 100.0% | 85.6% |
+| **All Files Total (56 tests)** | **92.0%** | **82.2%** | **98.9%** | **91.9%** |
 
 ---
 

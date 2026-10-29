@@ -1,11 +1,11 @@
 import { Calculator } from './components/Calculator';
 
 const KBD_CLASS =
-  'px-1.5 py-0.5 font-mono text-[10px] font-semibold bg-white dark:bg-[#334155] border border-slate-300 dark:border-[#475569] border-b-2 dark:border-b-[#0F172A] rounded shadow-2xs text-slate-700 dark:text-white';
+  'px-1.5 py-0.5 font-mono text-[10px] font-semibold bg-white dark:bg-[#252E3E] border border-slate-300 dark:border-[#3B475C] border-b-2 dark:border-b-[#111722] rounded shadow-2xs text-slate-700 dark:text-white';
 
 export function App() {
   return (
-    <main className="min-h-screen bg-[#ECEFF3] dark:bg-[#0B0F19] flex flex-col items-center justify-center p-4 sm:p-6 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+    <main className="min-h-screen bg-[#ECEFF3] dark:bg-[#070A12] flex flex-col items-center justify-center p-4 sm:p-6 text-slate-800 dark:text-slate-100 transition-colors duration-200">
       <Calculator />
 
       {/* Integrated Author Branding, Shortcuts & API Reference */}
@@ -18,7 +18,7 @@ export function App() {
             rel="noopener noreferrer"
             aria-label="Author GitHub profile: anbeld12"
             data-testid="author-link"
-            className="font-semibold text-slate-600 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-[#C7CEFF] underline decoration-slate-300 dark:decoration-slate-500 underline-offset-2 transition-colors"
+            className="font-semibold text-slate-600 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-[#D1D7FF] underline decoration-slate-300 dark:decoration-slate-500 underline-offset-2 transition-colors"
           >
             @anbeld12
           </a>
@@ -36,7 +36,7 @@ export function App() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open Swagger API documentation"
-            className="font-medium text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-[#C7CEFF] underline decoration-slate-300 dark:decoration-slate-500 underline-offset-2 transition-colors inline-flex items-center gap-0.5"
+            className="font-medium text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-[#D1D7FF] underline decoration-slate-300 dark:decoration-slate-500 underline-offset-2 transition-colors inline-flex items-center gap-0.5"
           >
             API Docs ↗
           </a>

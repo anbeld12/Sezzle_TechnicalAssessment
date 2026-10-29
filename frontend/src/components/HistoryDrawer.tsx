@@ -24,12 +24,12 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
   return (
     <div
       data-testid="history-drawer"
-      className="absolute inset-0 bg-[#F8F9FA]/95 dark:bg-[#1E293B]/95 backdrop-blur-md rounded-[2.5rem] p-6 z-20 flex flex-col justify-between shadow-2xl border border-white dark:border-slate-700/80 transition-all"
+      className="absolute inset-0 bg-[#F8F9FA]/95 dark:bg-[#151B28]/95 backdrop-blur-md rounded-[2.5rem] p-6 z-20 flex flex-col justify-between shadow-2xl border border-white dark:border-slate-700/80 transition-all"
     >
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-slate-700/80">
         <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-semibold text-lg">
-          <HistoryIcon className="w-5 h-5 text-indigo-500 dark:text-[#C7CEFF]" strokeWidth={2.2} />
+          <HistoryIcon className="w-5 h-5 text-indigo-500 dark:text-[#D1D7FF]" strokeWidth={2.2} />
           <span>Calculation History</span>
         </div>
         <button
@@ -60,16 +60,16 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
                 onSelect(item.result);
                 onClose();
               }}
-              className="w-full text-left bg-white/80 dark:bg-[#0F172A]/80 hover:bg-white dark:hover:bg-[#0F172A] p-3 rounded-2xl border border-slate-200/70 dark:border-slate-700 shadow-sm transition-all group active:scale-[0.98]"
+              className="w-full text-left bg-white/80 dark:bg-[#04060C]/80 hover:bg-white dark:hover:bg-[#04060C] p-3 rounded-2xl border border-slate-200/70 dark:border-slate-700 shadow-sm transition-all group active:scale-[0.98]"
             >
               <div className="text-xs text-slate-400 dark:text-slate-400 font-medium flex justify-between">
                 <span>{item.timestamp}</span>
-                <span className="opacity-0 group-hover:opacity-100 text-indigo-500 dark:text-[#C7CEFF] transition-opacity">
+                <span className="opacity-0 group-hover:opacity-100 text-indigo-500 dark:text-[#D1D7FF] transition-opacity">
                   Use result ↵
                 </span>
               </div>
               <div className="text-sm text-slate-600 dark:text-slate-200 font-medium truncate mt-0.5">{item.expression}</div>
-              <div className="text-lg font-bold text-slate-800 dark:text-slate-50 tracking-tight mt-0.5">{item.result}</div>
+              <div className="text-lg font-bold text-slate-800 dark:text-white tracking-tight mt-0.5">{item.result}</div>
             </button>
           ))
         )}
@@ -82,7 +82,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
           onClick={onClear}
           disabled={history.length === 0}
           aria-label="Clear all history"
-          className="flex items-center gap-1.5 text-xs font-semibold text-[#C9184A] dark:text-[#FFADC5] hover:bg-[#FFE5EC] dark:hover:bg-[#421C29] px-3 py-2 rounded-xl transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+          className="flex items-center gap-1.5 text-xs font-semibold text-[#C9184A] dark:text-[#FFB5CA] hover:bg-[#FFE5EC] dark:hover:bg-[#3D1622] px-3 py-2 rounded-xl transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
         >
           <Trash2 className="w-4 h-4" strokeWidth={2.2} />
           <span>Clear History</span>

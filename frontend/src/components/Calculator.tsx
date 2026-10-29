@@ -141,17 +141,13 @@ export const Calculator: React.FC = () => {
         return;
       }
 
-      // 2. Focused non-keycap controls (theme toggle, history, drawer items) keep
-      //    native Enter/Space activation so they stay keyboard-accessible.
-      const isKeycapFocused = target?.dataset?.keycap === 'true';
-      const isOtherButtonFocused = target?.tagName === 'BUTTON' && !isKeycapFocused;
-      if (isOtherButtonFocused && (e.key === 'Enter' || e.key === ' ')) {
+      // 2. Global Enter / = Priority: always evaluates calculation and drops any lingering focus
+      if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        (document.activeElement as HTMLElement)?.blur();
+        triggerKeyFeedback('btn-equals');
+        void evaluate();
         return;
-      }
-
-      // 3. Prevent a mouse-focused keycap from being natively re-clicked by Enter/Space.
-      if (isKeycapFocused && (e.key === 'Enter' || e.key === ' ')) {
-        target?.blur();
       }
 
       if (e.key === ' ') {
@@ -214,13 +210,6 @@ export const Calculator: React.FC = () => {
         return;
       }
 
-      if (e.key === 'Enter' || e.key === '=') {
-        e.preventDefault();
-        triggerKeyFeedback('btn-equals');
-        void evaluate();
-        return;
-      }
-
       if (e.key === 'Backspace') {
         triggerKeyFeedback('btn-del');
         deleteLast();
@@ -267,7 +256,7 @@ export const Calculator: React.FC = () => {
   return (
     <div
       data-testid="calculator-chassis"
-      className="bg-[#F8F9FA] dark:bg-[#1E293B] rounded-[2.5rem] p-5 sm:p-7 shadow-2xl dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] border border-white dark:border-slate-700/80 max-w-sm sm:max-w-md w-full mx-auto relative transition-colors duration-200"
+      className="bg-[#F8F9FA] dark:bg-[#151B28] rounded-[2.5rem] p-5 sm:p-7 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.85)] border border-white dark:border-slate-700/80 max-w-sm sm:max-w-md w-full mx-auto relative transition-colors duration-200"
     >
       {/* Top Header Bar: Model Badge, Status Pill, Theme Toggle & History */}
       <div className="flex items-center justify-between mb-4 px-1 gap-2">
@@ -275,7 +264,7 @@ export const Calculator: React.FC = () => {
           {/* Industrial Model Badge */}
           <span
             data-testid="model-badge"
-            className="font-mono text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md bg-slate-200/80 text-slate-700 dark:bg-[#334155] dark:text-slate-100 border border-slate-300/70 dark:border-[#475569] select-none"
+            className="font-mono text-[11px] font-bold tracking-wider px-2 py-0.5 rounded-md bg-slate-200/80 text-slate-700 dark:bg-[#252E3E] dark:text-white border border-slate-300/70 dark:border-[#3B475C] select-none"
           >
             CALC-01
           </span>
@@ -305,7 +294,7 @@ export const Calculator: React.FC = () => {
             onClick={toggleTheme}
             aria-label="Toggle theme"
             data-testid="theme-toggle"
-            className="p-1.5 rounded-full bg-white hover:bg-slate-50 dark:bg-[#334155] dark:hover:bg-[#3E4C63] text-slate-600 dark:text-slate-100 border border-slate-200/80 dark:border-[#475569] shadow-2xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            className="p-1.5 rounded-full bg-white hover:bg-slate-50 dark:bg-[#252E3E] dark:hover:bg-[#2F3A4E] text-slate-600 dark:text-white border border-slate-200/80 dark:border-[#3B475C] shadow-2xs transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           >
             {theme === 'dark' ? (
               <Sun className="w-4 h-4 text-amber-300" />
@@ -320,9 +309,9 @@ export const Calculator: React.FC = () => {
             onClick={() => setIsHistoryOpen(true)}
             aria-label="View history"
             data-testid="btn-history-toggle"
-            className="flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-slate-100 hover:text-slate-900 dark:hover:text-white bg-white hover:bg-slate-50 dark:bg-[#334155] dark:hover:bg-[#3E4C63] px-2.5 py-1.5 rounded-full border border-slate-200/80 dark:border-[#475569] shadow-2xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            className="flex items-center gap-1 text-xs font-semibold text-slate-600 dark:text-white hover:text-slate-900 dark:hover:text-white bg-white hover:bg-slate-50 dark:bg-[#252E3E] dark:hover:bg-[#2F3A4E] px-2.5 py-1.5 rounded-full border border-slate-200/80 dark:border-[#3B475C] shadow-2xs transition-colors focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           >
-            <HistoryIcon className="w-3.5 h-3.5 text-indigo-500 dark:text-[#C7CEFF]" strokeWidth={2.2} />
+            <HistoryIcon className="w-3.5 h-3.5 text-indigo-500 dark:text-[#D1D7FF]" strokeWidth={2.2} />
             <span>History</span>
             {state.history.length > 0 && (
               <span
@@ -356,7 +345,6 @@ export const Calculator: React.FC = () => {
         onBinaryOperation={selectBinaryOperation}
         onUnaryOperation={executeUnaryOperation}
         onEvaluate={evaluate}
-        pendingOperation={state.pendingOperation}
         isLoading={state.isLoading}
         pressedKeyId={pressedKeyId}
       />

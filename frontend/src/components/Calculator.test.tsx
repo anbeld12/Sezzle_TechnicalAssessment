@@ -278,15 +278,21 @@ describe('Calculator Component Integration', () => {
 
     // Keyboard power shortcut
     fireEvent.keyDown(window, { key: '^' });
-    expect(screen.getByTestId('expression-trail')).toHaveTextContent('4 ^');
+    await waitFor(() => {
+      expect(screen.getByTestId('expression-trail')).toHaveTextContent('4 ^');
+    });
 
     // Keyboard divide shortcut (replaces operator)
     fireEvent.keyDown(window, { key: '/' });
-    expect(screen.getByTestId('expression-trail')).toHaveTextContent('4 ÷');
+    await waitFor(() => {
+      expect(screen.getByTestId('expression-trail')).toHaveTextContent('4 ÷');
+    });
 
     // Keyboard subtract shortcut (replaces operator)
     fireEvent.keyDown(window, { key: '-' });
-    expect(screen.getByTestId('expression-trail')).toHaveTextContent('4 −');
+    await waitFor(() => {
+      expect(screen.getByTestId('expression-trail')).toHaveTextContent('4 −');
+    });
 
     // Keyboard sqrt shortcut ('r')
     mockCalculate.mockResolvedValueOnce({
@@ -504,6 +510,67 @@ describe('Calculator Component Integration', () => {
       render(<Calculator />);
       const notPrevented = fireEvent.keyDown(window, { key: ' ' });
       expect(notPrevented).toBe(false);
+    });
+  });
+
+  describe('Operator Highlight & Focus Retention Fixes', () => {
+    it('clicking an operator button does NOT leave a persistent active ring class on the button', () => {
+      render(<Calculator />);
+
+      // Enter 899999999990 and click Multiply
+      fireEvent.click(screen.getByTestId('btn-8'));
+      const btnMultiply = screen.getByTestId('btn-multiply');
+      fireEvent.click(btnMultiply);
+
+      // Verify operator does not have persistent active ring or border highlight
+      const activeRingClasses = btnMultiply.className
+        .split(/\s+/)
+        .filter((cls) => cls === 'ring-2' || cls === 'ring-4' || cls.startsWith('ring-offset-'));
+      expect(activeRingClasses).toHaveLength(0);
+      expect(btnMultiply.className).not.toContain('ring-[#D85A32]');
+      expect(btnMultiply.className).not.toContain('border-accent');
+      expect(screen.getByTestId('expression-trail')).toHaveTextContent('8 ×');
+    });
+
+    it('clicking an operator button and subsequently pressing Enter performs evaluation without re-triggering operator', async () => {
+      const mockCalculate = vi.mocked(apiService.calculateOnServer);
+      mockCalculate.mockResolvedValueOnce({
+        result: 24,
+        operation: 'multiply',
+        operand1: 6,
+        operand2: 4,
+        expression: '6 × 4 = 24',
+      });
+
+      render(<Calculator />);
+
+      // Click 6, then Multiply
+      fireEvent.click(screen.getByTestId('btn-6'));
+      const btnMultiply = screen.getByTestId('btn-multiply');
+      fireEvent.mouseDown(btnMultiply);
+      fireEvent.click(btnMultiply);
+
+      // Button should not have retained focus
+      expect(document.activeElement).not.toBe(btnMultiply);
+
+      // Click 4
+      const btn4 = screen.getByTestId('btn-4');
+      fireEvent.mouseDown(btn4);
+      fireEvent.click(btn4);
+
+      // Press physical keyboard 'Enter'
+      const enterEvent = fireEvent.keyDown(window, { key: 'Enter' });
+      expect(enterEvent).toBe(false); // Default prevented
+
+      await waitFor(() => {
+        expect(mockCalculate).toHaveBeenCalledTimes(1);
+        expect(mockCalculate).toHaveBeenCalledWith({
+          operand1: 6,
+          operand2: 4,
+          operation: 'multiply',
+        });
+        expect(screen.getByTestId('display-value')).toHaveTextContent('24');
+      });
     });
   });
 });
