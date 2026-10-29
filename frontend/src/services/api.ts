@@ -34,15 +34,27 @@ export const HUMANIZED_ERRORS: Record<string, FriendlyError> = {
     title: 'Incomplete calculation',
     message: 'Please enter a valid number and operation.',
   },
+  SERVER_OFFLINE: {
+    title: 'Server Offline',
+    message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
+  },
   NETWORK_ERROR: {
-    title: 'Calculator server offline',
-    message: 'Please check that the backend service is running.',
+    title: 'Server Offline',
+    message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
   },
 };
 
 export function getFriendlyError(code: string, fallbackMessage?: string): FriendlyError {
   if (HUMANIZED_ERRORS[code]) {
     return HUMANIZED_ERRORS[code];
+  }
+  if (
+    fallbackMessage &&
+    /bad gateway|gateway timeout|service unavailable|502|503|504|failed to fetch|server offline|connection/i.test(
+      fallbackMessage
+    )
+  ) {
+    return HUMANIZED_ERRORS.SERVER_OFFLINE;
   }
   return {
     title: 'Incomplete calculation',
@@ -61,6 +73,30 @@ export class CalculatorApiError extends Error {
     this.code = code;
     this.status = status;
     this.friendly = getFriendlyError(code, message);
+  }
+}
+
+export async function checkServerHealth(signal?: AbortSignal): Promise<boolean> {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? '';
+  const url = `${baseUrl}/api/v1/health`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      signal,
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = (await response.json()) as { status?: string };
+    return data?.status === 'ok';
+  } catch {
+    return false;
   }
 }
 
@@ -86,7 +122,7 @@ export async function calculateOnServer(
       throw err;
     }
     throw new CalculatorApiError(
-      'Calculator server offline',
+      'Cannot connect to the calculation service. Please make sure the backend is running.',
       'NETWORK_ERROR',
       0
     );
@@ -95,6 +131,11 @@ export async function calculateOnServer(
   if (!response.ok) {
     let errorCode = 'API_ERROR';
     let errorMessage = `Server returned status ${response.status}`;
+
+    if (response.status === 502 || response.status === 503 || response.status === 504) {
+      errorCode = 'SERVER_OFFLINE';
+      errorMessage = 'Cannot connect to the calculation service. Please make sure the backend is running.';
+    }
 
     try {
       const errorJson = (await response.json()) as ApiErrorPayload;
@@ -106,7 +147,7 @@ export async function calculateOnServer(
       }
     } catch {
       // Body was not valid JSON; fallback to status text or generic message
-      if (response.statusText) {
+      if (response.statusText && errorCode !== 'SERVER_OFFLINE') {
         errorMessage = response.statusText;
       }
     }

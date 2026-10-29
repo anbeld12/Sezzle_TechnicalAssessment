@@ -1,6 +1,7 @@
 # Full-Stack Calculator Application
 
 [![Author](https://img.shields.io/badge/Author-anbeld12-indigo?style=flat&logo=github)](https://github.com/anbeld12)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?style=flat&logo=github)](https://github.com/anbeld12/Sezzle_TechnicalAssessment)
 [![Go Version](https://img.shields.io/badge/Go-1.22%2B-00ADD8?style=flat&logo=go)](https://golang.org)
 [![React Version](https://img.shields.io/badge/React-19.3-61DAFB?style=flat&logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5%2B%20%2F%207-3178C6?style=flat&logo=typescript)](https://www.typescriptlang.org)
@@ -8,7 +9,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Multi--stage-2496ED?style=flat&logo=docker)](https://www.docker.com)
 [![Swagger OpenAPI](https://img.shields.io/badge/Swagger-OpenAPI_2.0-85EA2D?style=flat&logo=swagger)](http://localhost:8080/swagger/index.html)
 
-**Author:** [Acbel (@anbeld12)](https://github.com/anbeld12) • **Model:** CALC-01 Tactical Edition
+**Author:** [Acbel (@anbeld12)](https://github.com/anbeld12) • **Repository:** [anbeld12/Sezzle_TechnicalAssessment](https://github.com/anbeld12/Sezzle_TechnicalAssessment) • **Model:** CALC-01 Tactical Edition
 
 A production-grade full-stack calculator application developed for the Sezzle Technical Assessment. Built with a high-performance, stateless **Go REST microservice** and an ergonomic, accessible **React 19 + TypeScript SPA** featuring superellipse ("squircle") geometry, a soothing pastel aesthetic, and interactive Swagger OpenAPI documentation.
 
@@ -189,7 +190,7 @@ To build and run the full stack (backend, frontend, Nginx reverse proxy, and hea
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/anbeld12/Sezzle_TechnicalAssessment.git
 cd Sezzle_TechnicalAssessment
 
 # Launch containers in the background
@@ -445,21 +446,24 @@ npm run build
 
 | Directory / File | % Statements | % Branch | % Functions | % Lines |
 | :--- | :---: | :---: | :---: | :---: |
+| `src/App.tsx` | 100.0% | 100.0% | 100.0% | 100.0% |
 | `src/components/Button.tsx` | 100.0% | 100.0% | 100.0% | 100.0% |
 | `src/components/Display.tsx` | 100.0% | 100.0% | 100.0% | 100.0% |
-| `src/components/HistoryDrawer.tsx` | 100.0% | 100.0% | 100.0% | 100.0% |
+| `src/components/HistoryDrawer.tsx` | 100.0% | 89.3% | 100.0% | 100.0% |
+| `src/components/ShortcutsModal.tsx` | 100.0% | 87.5% | 100.0% | 100.0% |
 | `src/utils/formatters.ts` | 100.0% | 72.2% | 100.0% | 100.0% |
-| `src/services/api.ts` | 96.6% | 70.0% | 100.0% | 96.6% |
+| `src/services/api.ts` | 95.3% | 82.9% | 100.0% | 95.3% |
 | `src/hooks/useCalculator.ts` | 95.0% | 78.0% | 100.0% | 95.0% |
 | `src/components/Keypad.tsx` | 94.7% | 100.0% | 94.4% | 94.7% |
-| `src/components/Calculator.tsx` | 85.6% | 84.2% | 100.0% | 85.6% |
-| **All Files Total (68 tests)** | **92.7%** | **82.7%** | **99.0%** | **92.6%** |
+| `src/hooks/useApiHealth.ts` | 87.5% | 87.5% | 100.0% | 87.5% |
+| `src/components/Calculator.tsx` | 86.0% | 85.3% | 100.0% | 86.0% |
+| **All Files Total (82 tests)** | **92.8%** | **84.1%** | **99.1%** | **92.8%** |
 
 ---
 
 ## AI Tooling & Prompts Log
 
-In compliance with the assessment instructions (*"Share any prompts that you used in your work"*), this project employed a four-phase agentic AI engineering workflow inside Antigravity. Each phase below lists the model, the role it was given, its mission, and the primary prompt used (abridged where long; the key directives are quoted verbatim).
+In compliance with the assessment instructions (*"Share any prompts that you used in your work"*), this project employed a six-phase agentic AI engineering workflow inside Antigravity. Each phase below lists the model, the role it was given, its mission, and the primary prompt used (abridged where long; the key directives are quoted verbatim).
 
 | Phase | Focus | Model | Commit |
 | :---: | :--- | :--- | :--- |
@@ -467,6 +471,8 @@ In compliance with the assessment instructions (*"Share any prompts that you use
 | 2 | Full-stack implementation & verification | Gemini 3.8 Flash High | Milestones 1–6 |
 | 3 | UX polish, humanized errors & tactile design | Gemini 3.8 Flash High | `feat(ux): add tactile 3d keycaps, humanized error copy, theme toggle and stress-test guards` |
 | 4 | Keyboard modifier hardening, clipboard & WCAG dark mode | Claude Opus 5.5 Medium | `fix(ux): support ctrl+c clipboard copy with feedback, improve dark mode contrast and update branding` |
+| 5 | Calculation history drawer polish & clipboard copy | Claude Opus 5.5 Medium | `fix(ui): remove misleading enter icon and add copy-to-clipboard button in history drawer` |
+| 6 | Real API health polling, shortcuts modal & custom favicons | Claude Opus 5.5 Medium | `feat(ux): add real-time api health status, shortcuts modal, custom favicons and update repo url` |
 
 ### Prompt 1 — Phase 1: Staff Architecture & Formal Specification
 - **Model:** Gemini 4 Argon High
@@ -495,3 +501,17 @@ In compliance with the assessment instructions (*"Share any prompts that you use
 - **Mission:** Fix the `Ctrl+C` bug where the copy shortcut fell through to the `'c'` (All Clear) handler and wiped the value; guard all modifier combinations (`Ctrl+R` must never trigger `sqrt`); copy the display value to the clipboard with a self-dismissing "✓ Copied to clipboard" pill plus a one-click Copy button; prevent focused keycaps from being natively re-clicked by `Enter`/`Space`; redesign Dark Mode surfaces and keycaps for high WCAG contrast; link author branding to GitHub; and complete this prompts log.
 - **Primary Prompt Used:**
   > *"Pressing `Ctrl+C` (or `Cmd+C`) currently triggers the `'c'` key handler (`clearAll()`), wiping out the calculator's current value instead of copying it to the clipboard! In the `keydown` event listener, check `if (event.ctrlKey || event.metaKey || event.altKey)` FIRST... Trigger a visible, friendly feedback pill/toast inside the Display (`'✓ Copied to clipboard'`) that automatically fades out after 2 seconds... browser shortcuts like `Ctrl+R` (reload) NEVER accidentally trigger `'r'` (`sqrt`)... Currently, Dark Mode looks muddy and low-contrast... replace the plain text `Crafted by Acbel` with a clean, subtle clickable link to `https://github.com/anbeld12`... Update the AI Tooling & Prompts Log section in `README.md`... commit: `fix(ux): support ctrl+c clipboard copy with feedback, improve dark mode contrast and update branding`."*
+
+### Prompt 5 — Phase 5: History Drawer Polish & Direct Clipboard Copy
+- **Model:** Claude Opus 5.5 Medium
+- **Role:** Frontend Interaction & QA Engineer
+- **Mission:** Remove misleading Enter glyph (`↵`) from history cards, replace with explicit `"Click to load ↖"` hover hint, and add a dedicated "Copy result" button to each history item with soft emerald `✓ Copied!` feedback and event bubbling isolation (`e.stopPropagation()`).
+- **Primary Prompt Used:**
+  > *"In `HistoryDrawer.tsx`, remove the `↵` (Enter) glyph entirely and replace it with an intuitive, explicit action label or button that clearly communicates click/tap interaction (e.g. `Click to load ↖`)... Add a dedicated icon button using Lucide `Copy` on each history card with `e.stopPropagation()` to copy the result value without loading it into the calculator... Temporarily switch the button icon to Lucide `Check` in soft emerald green displaying `'Copied!'` for 1.8 seconds... Add unit tests verifying `↵` exclusion and copy behavior... commit: `fix(ui): remove misleading enter icon and add copy-to-clipboard button in history drawer`."*
+
+### Prompt 6 — Phase 6: Real API Health Polling, Interactive Shortcuts Modal & Custom Favicons
+- **Model:** Claude Opus 5.5 Medium
+- **Role:** Full-Stack UX & Reliability Engineer
+- **Mission:** Eliminate contradictory "API Ready / Bad Gateway" UI states by replacing the static chassis pill with a dynamic `useApiHealth` polling hook querying `GET /api/v1/health` on mount, periodically (10s), and on error; humanize 502/503/504 Bad Gateway and network drop errors as empathetic `"Server Offline"` messages; replace static unclickable footer keycaps with an accessible, keyboard-navigable `ShortcutsModal`; install custom favicon assets from `favicon_io`; and update official repository links.
+- **Primary Prompt Used:**
+  > *"When the Go backend is stopped, the top chassis bar continues to display a static green '● API Ready' pill, while the display presents a contradictory error: 'Incomplete calculation / Bad Gateway'... Implement dynamic health status polling (`useApiHealth`) querying `GET /api/v1/health` on initial mount, periodically (10s), and on API failure... Map 502/503/504 and connection drops to 'Server Offline' ('Cannot connect to the calculation service. Please make sure the backend is running')... Refactor footer shortcuts into an interactive Keyboard Shortcuts modal with Lucide `Keyboard` icon... Install custom favicon assets from `favicon_io` into `frontend/public/` and update `index.html`... Update official repository URLs to `https://github.com/anbeld12/Sezzle_TechnicalAssessment`... commit: `feat(ux): add real-time api health status, shortcuts modal, custom favicons and update repo url`."*

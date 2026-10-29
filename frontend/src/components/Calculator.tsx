@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { History as HistoryIcon, Sun, Moon } from 'lucide-react';
 import { useCalculator } from '../hooks/useCalculator';
+import { useApiHealth } from '../hooks/useApiHealth';
 import { Display } from './Display';
 import { Keypad } from './Keypad';
 import { HistoryDrawer } from './HistoryDrawer';
@@ -58,6 +59,8 @@ export const Calculator: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const { isOnline, checkHealth } = useApiHealth();
+
   const {
     state,
     inputDigit,
@@ -72,6 +75,13 @@ export const Calculator: React.FC = () => {
     selectHistoryItem,
     clearHistory,
   } = useCalculator();
+
+  // Immediately re-check health if an error occurs
+  useEffect(() => {
+    if (state.error) {
+      void checkHealth();
+    }
+  }, [state.error, checkHealth]);
 
   // Apply theme class to documentElement and persist
   useEffect(() => {
@@ -275,15 +285,21 @@ export const Calculator: React.FC = () => {
             className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all select-none ${
               state.isLoading
                 ? 'bg-indigo-100/80 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-200 border border-indigo-300/70 dark:border-indigo-700/70 animate-pulse'
-                : 'bg-emerald-100/80 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-200 border border-emerald-300/70 dark:border-emerald-700/70'
+                : isOnline
+                  ? 'bg-emerald-100/80 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-200 border border-emerald-300/70 dark:border-emerald-700/70'
+                  : 'bg-rose-100/80 text-rose-800 dark:bg-rose-950/70 dark:text-rose-200 border border-rose-300/70 dark:border-rose-700/70'
             }`}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                state.isLoading ? 'bg-indigo-500 dark:bg-indigo-300 animate-ping' : 'bg-emerald-500 dark:bg-emerald-300'
+                state.isLoading
+                  ? 'bg-indigo-500 dark:bg-indigo-300 animate-ping'
+                  : isOnline
+                    ? 'bg-emerald-500 dark:bg-emerald-400'
+                    : 'bg-rose-500 dark:bg-rose-400'
               }`}
             />
-            <span>{state.isLoading ? 'Calculating...' : 'API Ready'}</span>
+            <span>{state.isLoading ? 'Calculating...' : isOnline ? 'API Ready' : 'Server Offline'}</span>
           </div>
         </div>
 

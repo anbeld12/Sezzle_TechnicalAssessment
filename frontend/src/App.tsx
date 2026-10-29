@@ -1,9 +1,11 @@
+import { useState } from 'react';
+import { Keyboard } from 'lucide-react';
 import { Calculator } from './components/Calculator';
-
-const KBD_CLASS =
-  'px-1.5 py-0.5 font-mono text-[10px] font-semibold bg-white dark:bg-[#252E3E] border border-slate-300 dark:border-[#3B475C] border-b-2 dark:border-b-[#111722] rounded shadow-2xs text-slate-700 dark:text-white';
+import { ShortcutsModal } from './components/ShortcutsModal';
 
 export function App() {
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+
   return (
     <main className="min-h-screen bg-[#ECEFF3] dark:bg-[#070A12] flex flex-col items-center justify-center p-4 sm:p-6 text-slate-800 dark:text-slate-100 transition-colors duration-200">
       <Calculator />
@@ -23,13 +25,16 @@ export function App() {
             @anbeld12
           </a>
           <span className="text-slate-300 dark:text-slate-600">•</span>
-          <span>Keyboard Shortcuts</span>
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <kbd className={KBD_CLASS}>Enter</kbd>
-          <kbd className={KBD_CLASS}>Backspace</kbd>
-          <kbd className={KBD_CLASS}>Esc</kbd>
-          <kbd className={KBD_CLASS}>Ctrl+C</kbd>
+          <button
+            type="button"
+            onClick={() => setIsShortcutsOpen(true)}
+            aria-label="Open keyboard shortcuts modal"
+            data-testid="btn-open-shortcuts"
+            className="inline-flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-[#D1D7FF] underline decoration-slate-300 dark:decoration-slate-500 underline-offset-2 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded"
+          >
+            <Keyboard className="w-3.5 h-3.5" />
+            <span>Keyboard Shortcuts</span>
+          </button>
           <span className="text-slate-300 dark:text-slate-600">•</span>
           <a
             href="/swagger/index.html"
@@ -42,6 +47,8 @@ export function App() {
           </a>
         </div>
       </footer>
+
+      <ShortcutsModal isOpen={isShortcutsOpen} onClose={() => setIsShortcutsOpen(false)} />
     </main>
   );
 }

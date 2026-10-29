@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { calculateOnServer, CalculatorApiError, getFriendlyError, HUMANIZED_ERRORS } from './api';
+import {
+  calculateOnServer,
+  checkServerHealth,
+  CalculatorApiError,
+  getFriendlyError,
+  HUMANIZED_ERRORS,
+} from './api';
 import type { CalculateRequest, CalculateResponse } from '../types/calculator';
 
 describe('Humanized Error Mappings', () => {
@@ -33,8 +39,16 @@ describe('Humanized Error Mappings', () => {
       message: 'Please enter a valid number and operation.',
     });
     expect(getFriendlyError('NETWORK_ERROR')).toEqual({
-      title: 'Calculator server offline',
-      message: 'Please check that the backend service is running.',
+      title: 'Server Offline',
+      message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
+    });
+    expect(getFriendlyError('SERVER_OFFLINE')).toEqual({
+      title: 'Server Offline',
+      message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
+    });
+    expect(getFriendlyError('API_ERROR', '502 Bad Gateway')).toEqual({
+      title: 'Server Offline',
+      message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
     });
     expect(getFriendlyError('RANDOM_CODE', 'Custom helper')).toEqual({
       title: 'Incomplete calculation',
@@ -148,7 +162,7 @@ describe('calculateOnServer', () => {
     });
   });
 
-  it('handles non-JSON error response gracefully', async () => {
+  it('handles non-JSON 502 Bad Gateway response as SERVER_OFFLINE error', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 502,
@@ -166,9 +180,13 @@ describe('calculateOnServer', () => {
 
     await expect(calculateOnServer(payload)).rejects.toMatchObject({
       name: 'CalculatorApiError',
-      code: 'API_ERROR',
+      code: 'SERVER_OFFLINE',
       status: 502,
-      message: 'Bad Gateway',
+      message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
+      friendly: {
+        title: 'Server Offline',
+        message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
+      },
     });
   });
 
@@ -185,11 +203,56 @@ describe('calculateOnServer', () => {
       name: 'CalculatorApiError',
       code: 'NETWORK_ERROR',
       status: 0,
-      message: 'Calculator server offline',
+      message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
       friendly: {
-        title: 'Calculator server offline',
-        message: 'Please check that the backend service is running.',
+        title: 'Server Offline',
+        message: 'Cannot connect to the calculation service. Please make sure the backend is running.',
       },
     });
+  });
+});
+
+describe('checkServerHealth', () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it('returns true when server health endpoint returns 200 with status: ok', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ status: 'ok' }),
+    } as unknown as Response);
+
+    const isHealthy = await checkServerHealth();
+    expect(isHealthy).toBe(true);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      '/api/v1/health',
+      expect.objectContaining({ method: 'GET' })
+    );
+  });
+
+  it('returns false when server health endpoint returns non-200', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      json: async () => ({ status: 'unavailable' }),
+    } as unknown as Response);
+
+    const isHealthy = await checkServerHealth();
+    expect(isHealthy).toBe(false);
+  });
+
+  it('returns false when health check fetch throws network error', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error('Network failure'));
+
+    const isHealthy = await checkServerHealth();
+    expect(isHealthy).toBe(false);
   });
 });

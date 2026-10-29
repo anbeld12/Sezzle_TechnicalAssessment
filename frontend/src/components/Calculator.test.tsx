@@ -8,6 +8,7 @@ vi.mock('../services/api', async (importOriginal) => {
   return {
     ...actual,
     calculateOnServer: vi.fn(),
+    checkServerHealth: vi.fn().mockResolvedValue(true),
   };
 });
 
@@ -324,6 +325,15 @@ describe('Calculator Component Integration', () => {
     expect(screen.getByTestId('model-badge')).toHaveTextContent('CALC-01');
     expect(screen.getByTestId('api-status-pill')).toHaveTextContent('API Ready');
     expect(screen.getByTestId('theme-toggle')).toBeInTheDocument();
+  });
+
+  it('updates status pill to Server Offline when health check fails', async () => {
+    vi.mocked(apiService.checkServerHealth).mockResolvedValueOnce(false);
+    render(<Calculator />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('api-status-pill')).toHaveTextContent('Server Offline');
+    });
   });
 
   it('toggles Day/Night theme and persists preference in localStorage', () => {
