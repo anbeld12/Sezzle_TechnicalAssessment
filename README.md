@@ -59,63 +59,38 @@ A production-grade full-stack calculator application developed for the Sezzle Te
 
 ## Visual Demos & Feature Showcase
 
-Below are recorded live demonstrations verifying arithmetic accuracy, interactive ergonomics, responsive themes, and resilience.
+Explore the interactive ergonomics, mathematical rigor, and real-time resilience of the application:
 
-<details open>
-<summary><b>1. Basic Arithmetic: Addition & Subtraction</b></summary>
+### 🌟 Interactive Product Overview
+A soft-pastel tactile UI with squircle keycaps, live expression trail, and sub-millisecond Go microservice response.
 
-Demonstrates continuous operand entry, floating-point precision normalization (`0.1 + 0.2 = 0.3`), and chained addition/subtraction.
+<p align="center">
+  <img src="./docs/assets/01-addition-subtraction.gif" alt="Full Stack Calculator Demo" width="75%" style="border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.15);" />
+</p>
 
-![Basic Arithmetic: Addition & Subtraction](docs/assets/01-addition-subtraction.gif)
-</details>
+---
 
-<details>
-<summary><b>2. Multiplication, Division & Negative Numbers</b></summary>
+### 📱 Feature Demos Gallery
 
-Demonstrates multiplication, division, sign toggling (`±`), and division-by-zero domain error protection with humanized error copy.
+| 1. Arithmetic & Precision | 2. Division by Zero & Negatives |
+| :---: | :---: |
+| Continuous operand entry & IEEE 754 precision normalization (`0.1 + 0.2 = 0.3`). | Sign toggle (`±`), division-by-zero protection, and humanized error banners. |
+| <img src="./docs/assets/01-addition-subtraction.gif" width="100%" alt="Addition and Subtraction" /> | <img src="./docs/assets/02-multiplication-division-negatives.gif" width="100%" alt="Multiplication and Division" /> |
 
-![Multiplication, Division & Negative Numbers](docs/assets/02-multiplication-division-negatives.gif)
-</details>
+| 3. Advanced Operations (Powers & Roots) | 4. Cozy Dark Mode vs. Light Pastel |
+| :---: | :---: |
+| Unary square roots ($\sqrt{x}$), powers ($x^y$), and contextual percentages ($b\%$ of $a$). | Seamless day/night switching with persisted state and high-contrast WCAG AAA palette. |
+| <img src="./docs/assets/03-power-sqrt-percentage.gif" width="100%" alt="Advanced Operations" /> | <img src="./docs/assets/04-dark-mode-light-mode.gif" width="100%" alt="Dark and Light Mode" /> |
 
-<details>
-<summary><b>3. Advanced Operations: Exponentiation, Square Root & Percentage</b></summary>
+| 5. History Drawer & Direct Copy | 6. Physical Keyboard & Shortcuts Modal |
+| :---: | :---: |
+| Review past calculations, reload prior states (`Click to load ↖`), and copy results. | Full physical numpad navigation, `Ctrl+C` copy toast, and interactive guide modal. |
+| <img src="./docs/assets/05-calculation-history.gif" width="100%" alt="Calculation History" /> | <img src="./docs/assets/06-keyboard-shortcuts.gif" width="100%" alt="Keyboard Shortcuts" /> |
 
-Demonstrates unary square roots ($\sqrt{x}$), powers ($x^y$), and contextual percentage calculations ($b\%$ of $a$).
-
-![Advanced Operations: Exponentiation, Square Root & Percentage](docs/assets/03-power-sqrt-percentage.gif)
-</details>
-
-<details>
-<summary><b>4. Soft-Pastel Design System: Light Cream & Cozy Night Dark Mode</b></summary>
-
-Demonstrates instant theme switching between the warm soft-cream tactile palette and the high-contrast dark slate palette.
-
-![Soft-Pastel Design System: Light Cream & Cozy Night Dark Mode](docs/assets/04-dark-mode-light-mode.gif)
-</details>
-
-<details>
-<summary><b>5. Calculation History Drawer & Direct Clipboard Copy</b></summary>
-
-Demonstrates reviewing past calculations, reloading previous results into the active display (`Click to load ↖`), one-click clipboard copying (`✓ Copied!`), and clearing history.
-
-![Calculation History Drawer & Direct Clipboard Copy](docs/assets/05-calculation-history.gif)
-</details>
-
-<details>
-<summary><b>6. Physical Keyboard Accessibility & Shortcuts Modal</b></summary>
-
-Demonstrates full physical keyboard navigation (numpad, operators, `Enter`, `Backspace`, `Ctrl+C` copy toast) and the interactive shortcut guide modal.
-
-![Physical Keyboard Accessibility & Shortcuts Modal](docs/assets/06-keyboard-shortcuts.gif)
-</details>
-
-<details>
-<summary><b>7. Real-Time API Health Polling & Offline Graceful Degradation</b></summary>
-
-Demonstrates the dynamic `● API Ready` status turning to `● Server Offline` when the Go backend service is stopped, rendering empathetic offline alerts.
-
-![Real-Time API Health Polling & Offline Graceful Degradation](docs/assets/07-api-health-offline-handling.gif)
-</details>
+| 7. Real-Time API Health Polling & Offline Degradation |
+| :---: |
+| Dynamic `● API Ready` / `● Server Offline` status pill with graceful offline fallback when the backend stops. |
+| <img src="./docs/assets/07-api-health-offline-handling.gif" width="60%" alt="API Health Monitoring" /> |
 
 ---
 
