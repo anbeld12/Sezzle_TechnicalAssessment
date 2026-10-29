@@ -218,6 +218,13 @@ describe('Calculator Component Integration', () => {
     const drawer = screen.getByTestId('history-drawer');
     expect(drawer).toBeInTheDocument();
     expect(within(drawer).getByText('40 + 2 = 42')).toBeInTheDocument();
+    expect(drawer.textContent).not.toContain('↵');
+
+    // Test history copy button copies to clipboard without closing drawer or altering display
+    const copyBtn = screen.getByTestId('btn-copy-history');
+    fireEvent.click(copyBtn);
+    expect(await within(drawer).findByText('Copied!')).toBeInTheDocument();
+    expect(screen.getByTestId('history-drawer')).toBeInTheDocument();
 
     // Click history item to load into display
     fireEvent.click(screen.getByTestId('history-entry-item'));

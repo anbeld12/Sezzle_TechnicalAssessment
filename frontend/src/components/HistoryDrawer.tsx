@@ -1,5 +1,5 @@
-import React from 'react';
-import { History as HistoryIcon, Trash2, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ArrowUpLeft, Check, Copy, History as HistoryIcon, Trash2, X } from 'lucide-react';
 import type { HistoryEntry } from '../types/calculator';
 
 interface HistoryDrawerProps {
@@ -17,6 +17,47 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
   onSelect,
   onClear,
 }) => {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleCopy = async (id: string, result: number) => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(String(result));
+      } else if (typeof document !== 'undefined') {
+        const textarea = document.createElement('textarea');
+        textarea.value = String(result);
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        if (typeof document.execCommand === 'function') {
+          document.execCommand('copy');
+        }
+        document.body.removeChild(textarea);
+      }
+
+      setCopiedId(id);
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopiedId(null);
+      }, 1800);
+    } catch (err) {
+      console.error('Failed to copy history item:', err);
+    }
+  };
+
   if (!isOpen) {
     return null;
   }
@@ -52,25 +93,63 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({
           </div>
         ) : (
           history.map((item) => (
-            <button
+            <div
               key={item.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               data-testid="history-entry-item"
               onClick={() => {
                 onSelect(item.result);
                 onClose();
               }}
-              className="w-full text-left bg-white/80 dark:bg-[#04060C]/80 hover:bg-white dark:hover:bg-[#04060C] p-3 rounded-2xl border border-slate-200/70 dark:border-slate-700 shadow-sm transition-all group active:scale-[0.98]"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelect(item.result);
+                  onClose();
+                }
+              }}
+              className="w-full text-left bg-white/80 dark:bg-[#04060C]/80 hover:bg-white dark:hover:bg-[#04060C] p-3 rounded-2xl border border-slate-200/70 dark:border-slate-700 shadow-sm transition-all group cursor-pointer active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
             >
-              <div className="text-xs text-slate-400 dark:text-slate-400 font-medium flex justify-between">
+              <div className="text-xs text-slate-400 dark:text-slate-400 font-medium flex items-center justify-between">
                 <span>{item.timestamp}</span>
-                <span className="opacity-0 group-hover:opacity-100 text-indigo-500 dark:text-[#D1D7FF] transition-opacity">
-                  Use result ↵
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="opacity-0 group-hover:opacity-100 text-indigo-500 dark:text-[#D1D7FF] transition-opacity flex items-center gap-1 text-[11px] font-medium">
+                    <ArrowUpLeft className="w-3 h-3" strokeWidth={2.2} />
+                    <span>Click to load</span>
+                  </span>
+                  <button
+                    type="button"
+                    data-testid="btn-copy-history"
+                    title={copiedId === item.id ? 'Copied' : 'Copy result'}
+                    aria-label={copiedId === item.id ? 'Copied' : 'Copy result to clipboard'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void handleCopy(item.id, item.result);
+                    }}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+                      copiedId === item.id
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-[#0E3522] dark:text-[#9AF5BA]'
+                        : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/70'
+                    }`}
+                  >
+                    {copiedId === item.id ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" strokeWidth={2} />
+                        <span>Copied!</span>
+                      </>
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" strokeWidth={2} />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="text-sm text-slate-600 dark:text-slate-200 font-medium truncate mt-0.5">{item.expression}</div>
               <div className="text-lg font-bold text-slate-800 dark:text-white tracking-tight mt-0.5">{item.result}</div>
-            </button>
+            </div>
           ))
         )}
       </div>

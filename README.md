@@ -453,7 +453,7 @@ npm run build
 | `src/hooks/useCalculator.ts` | 95.0% | 78.0% | 100.0% | 95.0% |
 | `src/components/Keypad.tsx` | 94.7% | 100.0% | 94.4% | 94.7% |
 | `src/components/Calculator.tsx` | 85.6% | 84.2% | 100.0% | 85.6% |
-| **All Files Total (56 tests)** | **92.0%** | **82.2%** | **98.9%** | **91.9%** |
+| **All Files Total (68 tests)** | **92.7%** | **82.7%** | **99.0%** | **92.6%** |
 
 ---
 

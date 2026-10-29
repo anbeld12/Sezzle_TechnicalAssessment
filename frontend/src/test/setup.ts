@@ -13,3 +13,16 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: () => false,
   }),
 });
+
+if (typeof navigator !== 'undefined' && !navigator.clipboard) {
+  Object.defineProperty(navigator, 'clipboard', {
+    configurable: true,
+    value: {
+      writeText: () => Promise.resolve(),
+    },
+  });
+}
+
+if (typeof document !== 'undefined' && !document.execCommand) {
+  document.execCommand = () => true;
+}
