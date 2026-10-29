@@ -17,18 +17,19 @@ A production-grade full-stack calculator application developed for the Sezzle Te
 
 ## Table of Contents
 1. [Key Features](#key-features)
-2. [Architecture & System Design](#architecture--system-design)
-3. [Design Decisions & Technical Rationale](#design-decisions--technical-rationale)
-4. [Mathematical Domain & IEEE 754 Boundary Handling](#mathematical-domain--ieee-754-boundary-handling)
-5. [Quick Start & Setup](#quick-start--setup)
+2. [Visual Demos & Feature Showcase](#visual-demos--feature-showcase)
+3. [Architecture & System Design](#architecture--system-design)
+4. [Design Decisions & Technical Rationale](#design-decisions--technical-rationale)
+5. [Mathematical Domain & IEEE 754 Boundary Handling](#mathematical-domain--ieee-754-boundary-handling)
+6. [Quick Start & Setup](#quick-start--setup)
    - [Option A: Docker Compose (Recommended)](#option-a-docker-compose-recommended)
    - [Option B: Local Development](#option-b-local-development)
-6. [Interactive Swagger & REST API Reference](#interactive-swagger--rest-api-reference)
+7. [Interactive Swagger & REST API Reference](#interactive-swagger--rest-api-reference)
    - [Swagger UI](#swagger-ui)
    - [API Endpoints](#api-endpoints)
    - [cURL Examples](#curl-examples)
-7. [Testing & Coverage Reports](#testing--coverage-reports)
-8. [AI Tooling & Prompts Log](#ai-tooling--prompts-log)
+8. [Testing & Coverage Reports](#testing--coverage-reports)
+9. [AI Tooling & Prompts Log](#ai-tooling--prompts-log)
 
 ---
 
@@ -53,6 +54,68 @@ A production-grade full-stack calculator application developed for the Sezzle Te
 - **Multi-Stage Containerization:**
   - Hardened non-root Go Alpine backend container.
   - Multi-stage Node 24 Vite builder into an Nginx 1.27 Alpine runtime with reverse proxying for seamless single-origin networking.
+
+---
+
+## Visual Demos & Feature Showcase
+
+Below are recorded live demonstrations verifying arithmetic accuracy, interactive ergonomics, responsive themes, and resilience.
+
+<details open>
+<summary><b>1. Basic Arithmetic: Addition & Subtraction</b></summary>
+
+Demonstrates continuous operand entry, floating-point precision normalization (`0.1 + 0.2 = 0.3`), and chained addition/subtraction.
+
+![Basic Arithmetic: Addition & Subtraction](docs/assets/01-addition-subtraction.gif)
+</details>
+
+<details>
+<summary><b>2. Multiplication, Division & Negative Numbers</b></summary>
+
+Demonstrates multiplication, division, sign toggling (`±`), and division-by-zero domain error protection with humanized error copy.
+
+![Multiplication, Division & Negative Numbers](docs/assets/02-multiplication-division-negatives.gif)
+</details>
+
+<details>
+<summary><b>3. Advanced Operations: Exponentiation, Square Root & Percentage</b></summary>
+
+Demonstrates unary square roots ($\sqrt{x}$), powers ($x^y$), and contextual percentage calculations ($b\%$ of $a$).
+
+> *Note: Exponentiation, square root, and percentage logic are verified in Go domain unit tests and interactive UI.*
+</details>
+
+<details>
+<summary><b>4. Soft-Pastel Design System: Light Cream & Cozy Night Dark Mode</b></summary>
+
+Demonstrates instant theme switching between the warm soft-cream tactile palette and the high-contrast dark slate palette.
+
+![Soft-Pastel Design System: Light Cream & Cozy Night Dark Mode](docs/assets/04-dark-mode-light-mode.gif)
+</details>
+
+<details>
+<summary><b>5. Calculation History Drawer & Direct Clipboard Copy</b></summary>
+
+Demonstrates reviewing past calculations, reloading previous results into the active display (`Click to load ↖`), one-click clipboard copying (`✓ Copied!`), and clearing history.
+
+![Calculation History Drawer & Direct Clipboard Copy](docs/assets/05-calculation-history.gif)
+</details>
+
+<details>
+<summary><b>6. Physical Keyboard Accessibility & Shortcuts Modal</b></summary>
+
+Demonstrates full physical keyboard navigation (numpad, operators, `Enter`, `Backspace`, `Ctrl+C` copy toast) and the interactive shortcut guide modal.
+
+![Physical Keyboard Accessibility & Shortcuts Modal](docs/assets/06-keyboard-shortcuts.gif)
+</details>
+
+<details>
+<summary><b>7. Real-Time API Health Polling & Offline Graceful Degradation</b></summary>
+
+Demonstrates the dynamic `● API Ready` status turning to `● Server Offline` when the Go backend service is stopped, rendering empathetic offline alerts.
+
+![Real-Time API Health Polling & Offline Graceful Degradation](docs/assets/07-api-health-offline-handling.gif)
+</details>
 
 ---
 
